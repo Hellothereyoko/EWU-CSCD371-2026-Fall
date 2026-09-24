@@ -66,7 +66,7 @@ public class ProgramTests
         string percentage = Program.GetPercentCorrect(numberOfCorrectGuesses, numberOfQuestions);
 
         // Assert
-        Assert.AreEqual(expectedString, percentage);
+        Assert.AreEqual(expectedString, percentage); 
     }
 
 
