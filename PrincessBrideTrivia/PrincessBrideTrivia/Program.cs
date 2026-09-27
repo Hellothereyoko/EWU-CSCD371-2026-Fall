@@ -34,7 +34,7 @@ public class Program
     */
     public static string GetPercentCorrect(int numberCorrectAnswers, int numberOfQuestions)
     {
-        return (numberCorrectAnswers / numberOfQuestions * 100) + "%"; // !! TEST CASE FAILURE CAUSE STRING ALSO DOESNT MATCH DUE TO MISCALC !!  
+        return ((double)numberCorrectAnswers / numberOfQuestions * 100) + "%"; // !! TEST CASE FAILURE CAUSE STRING ALSO DOESNT MATCH DUE TO MISCALC !!  
     }
 
 
