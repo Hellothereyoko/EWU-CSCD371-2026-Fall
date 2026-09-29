@@ -31,7 +31,7 @@ Reference **Chapters 4-6** with an **especially careful read of Chapter 6**. Pay
 - Ensure that you turn on CodeAnalysisTreatWarningsAsErrors ❌✔
 - Ensure that you turn on EnforceCodeStyleInBuild ❌✔
 - Set `LangVersion` and the `TargetFramework` to the latest released versions available (preview versions optional) ❌✔
-- Turn on Nullability (`Nullable`) ❌✔
+- Turn on Nullability (`Nullable`) ✔
 - **All of the above should be unit tested.**
 
 ## Extra Credit
