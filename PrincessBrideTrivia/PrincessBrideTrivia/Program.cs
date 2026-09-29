@@ -34,7 +34,8 @@ public class Program
     */
     public static string GetPercentCorrect(int numberCorrectAnswers, int numberOfQuestions)
     {
-        return ((double)numberCorrectAnswers / numberOfQuestions * 100) + "%"; // !! TEST CASE FAILURE CAUSE STRING ALSO DOESNT MATCH DUE TO MISCALC !!  
+        double percentCorrect = (double)numberCorrectAnswers/ numberOfQuestions* 100;
+        return Math.Round(percentCorrect, MidpointRounding.AwayFromZero) + "%"; // bug fix// cast int vals to double for division and rounded the return value to nearest decimal
     }
 
 
@@ -133,6 +134,7 @@ public class Program
             question.Answers[1] = answer2;
             question.Answers[2] = answer3;
             question.CorrectAnswerIndex = correctAnswerIndex;
+            questions[i] = question; // bug fix // add the question object to the array
         }
         return questions;
     }
