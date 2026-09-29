@@ -85,4 +85,33 @@ public class ProgramTests
             File.AppendAllLines(filePath, lines);
         }
     }
+
+
+    [ResourceLock(WellKnownResources.Console)] // MSTEST0074: on 'Console.SetIn'
+    [TestMethod]
+    [DataRow("x\n3\n1\n", 1)]
+    [DataRow("\n-1\n2\n", 2)]
+    [DataRow("    \n2\n", 2)]
+    public void GetQuizInputFromUser_Input_RejectsInvalidInputsUntilCorrect(string simInput, int expectedResult)
+    {
+        // Save original stdin
+        TextReader originalIn = Console.In;
+
+        try
+        {
+            // Arrange (simulates wrong inputs until a correct one)
+            Console.SetIn(new StringReader(simInput));
+        
+            // Act
+            int choice = Program.GetQuizInputFromUser();
+        
+            // Assert
+            Assert.AreEqual(expectedResult, choice);
+        }
+        finally
+        {
+            // Restore original stdin
+            Console.SetIn(originalIn);
+        }
+    }
 }

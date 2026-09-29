@@ -138,4 +138,33 @@ public class Program
         }
         return questions;
     }
+
+
+    /*
+    * This method prompts the user to select a quiz and returns their selection as an integer.
+    * @return An integer representing the user's quiz selection (1 or 2).
+    */
+    public static int GetQuizInputFromUser()
+    {
+        while (true)
+        {
+            Console.WriteLine("Would you like to take quiz one, or quiz two?");
+            Console.Write("Enter 1 or 2: ");
+            
+            string input = Console.ReadLine();
+
+            switch (input)
+            {
+                case "1":
+                    return 1;
+                
+                case "2":
+                    return 2;
+                
+                default:
+                    Console.WriteLine("Invalid input. Please enter a 1 or a 2.");
+                    break;
+            }
+        }
+    }
 }
