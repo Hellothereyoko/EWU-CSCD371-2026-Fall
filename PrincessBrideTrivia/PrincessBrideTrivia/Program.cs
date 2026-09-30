@@ -1,3 +1,5 @@
+using System.Reflection.Metadata;
+
 namespace PrincessBrideTrivia;
 
 public class Program
@@ -10,19 +12,33 @@ public class Program
         //Load question from defined file & structure according to Question Method
         string filePath = GetFilePath();
         Question[] questions = LoadQuestions(filePath);
+        bool playAgain;
 
-        int numberCorrect = 0;
-        for (int i = 0; i < questions.Length; i++)
+        Console.WriteLine();
+        Console.WriteLine("╔═════════════════════=═════════════════════╗");
+        Console.WriteLine("║                                           ║");
+        Console.WriteLine("║           PRINCESS BRIDE TRIVIA           ║");
+        Console.WriteLine("║                                           ║");
+        Console.WriteLine("╚════════════════════=══════════════════════╝");
+        Console.WriteLine();
+        do
         {
-            bool result = AskQuestion(questions[i]);
-            if (result)
+            int numberCorrect = 0;
+            for (int i = 0; i < questions.Length; i++)
             {
-                numberCorrect++;
+                bool result = AskQuestion(questions[i]);
+                if (result)
+                {
+                    numberCorrect++;
+                }
             }
+            Console.WriteLine("You got " + GetPercentCorrect(numberCorrect, questions.Length) + " correct");
+            playAgain = Replay();
         }
-        Console.WriteLine("You got " + GetPercentCorrect(numberCorrect, questions.Length) + " correct");
-    }
+        while (playAgain == true);
 
+        Console.WriteLine("But I also have to say, for the umpty-umpth time, that life isn't fair. It's just fairer than death, that's all. \n\t William Goldman");
+    }
     public static string GetPercentCorrect(int numberCorrectAnswers, int numberOfQuestions)
     {
         double percentCorrect = (double)numberCorrectAnswers/ numberOfQuestions* 100;
