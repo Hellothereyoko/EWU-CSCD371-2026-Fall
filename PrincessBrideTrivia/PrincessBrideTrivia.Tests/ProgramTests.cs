@@ -85,4 +85,36 @@ public class ProgramTests
             File.AppendAllLines(filePath, lines);
         }
     }
+    [TestMethod]
+    [DataRow(3, 9, "33%")]   // rounds down 33.33
+    [DataRow(6, 9, "67%")]   // rounds up 66.67
+    public void GetPercentCorrect_NinthsRoundCorrectly(int correct, int total, string expected)
+    {
+        Assert.AreEqual(expected, Program.GetPercentCorrect(correct, total));
+    }
+    [TestMethod]
+    public void DisplayResult_CorrectGuess_ReturnsTrueAndPrintsCorrect()
+    {
+        TextWriter originalOut = Console.Out;
+        StringWriter output = new();
+        try
+        {
+            Console.SetOut(output);
+            Question question = new Question
+            {
+                Text = "Q?",
+                Answers = ["A", "B", "C"],
+                CorrectAnswerIndex = "1"
+            };
+
+            bool result = Program.DisplayResult("1", question);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual("Correct", output.ToString().Trim());
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
 }

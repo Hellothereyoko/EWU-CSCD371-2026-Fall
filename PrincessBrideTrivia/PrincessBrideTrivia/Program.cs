@@ -1,4 +1,4 @@
-﻿namespace PrincessBrideTrivia; //Inherits Project Space 
+namespace PrincessBrideTrivia;
 
 public class Program
 {
@@ -11,27 +11,18 @@ public class Program
         string filePath = GetFilePath();
         Question[] questions = LoadQuestions(filePath);
 
-        //Init numCorrect var and loop through until all have been asked AND answered! 
         int numberCorrect = 0;
         for (int i = 0; i < questions.Length; i++)
         {
             bool result = AskQuestion(questions[i]);
             if (result)
             {
-                numberCorrect++; //If answer is correct, increment the numberCorrect variable
+                numberCorrect++;
             }
         }
         Console.WriteLine("You got " + GetPercentCorrect(numberCorrect, questions.Length) + " correct");
     }
 
-
-    /*
-    * This method calculates the percentage of correct answers and returns it as a formatted string.
-    * @param numberCorrectAnswers The number of correct answers.
-    * @param numberOfQuestions The total number of questions.
-    * @return A string representing the percentage of correct answers, formatted as a percentage.
-    * 
-    */
     public static string GetPercentCorrect(int numberCorrectAnswers, int numberOfQuestions)
     {
         double percentCorrect = (double)numberCorrectAnswers/ numberOfQuestions* 100;
@@ -137,5 +128,16 @@ public class Program
             questions[i] = question; // bug fix // add the question object to the array
         }
         return questions;
+    }
+    // Added feature, prompt user to replay and returns true if the player presses p key, false otherwise.
+    public static bool Replay()
+    {
+        Console.WriteLine();
+        Console.WriteLine("Press P to play trivia again, or any other key to quit.");
+
+        ConsoleKeyInfo key = Console.ReadKey(true); // true = don't echo the key on screen
+        Console.WriteLine();
+
+        return char.ToUpper(key.KeyChar) == 'P';
     }
 }
