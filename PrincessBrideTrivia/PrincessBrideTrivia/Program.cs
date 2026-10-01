@@ -4,12 +4,14 @@ namespace PrincessBrideTrivia;
 
 public class Program
 {
-     /*
-    * This is the main entry point for the program. It loads the questions from a file, asks each question to the user, and keeps track of the number of correct answers. At the end, it displays the percentage of correct answers.
-    */
+    /// <summary>
+    /// This is the main entry point for the program. It loads the questions from a file,
+    /// asks each question to the user, and keeps track of the number of correct answers.
+    /// At the end, it displays the percentage of correct answers.
+    /// </summary>
     public static void Main(string[] args)
     {
-        //Load question from defined file & structure according to Question Method
+        
         string filePath = GetFilePath();
         Question[] questions = LoadQuestions(filePath);
         bool playAgain;
@@ -22,6 +24,10 @@ public class Program
         Console.WriteLine("╚══════════════════════════════════════════╝");
         Console.WriteLine();
         do
+
+       
+        int numberCorrect = 0;
+        for (int i = 0; i < questions.Length; i++)
         {
             int numberCorrect = 0;
             for (int i = 0; i < questions.Length; i++)
@@ -31,6 +37,7 @@ public class Program
                 {
                     numberCorrect++;
                 }
+                numberCorrect++; 
             }
             Console.WriteLine("You got " + GetPercentCorrect(numberCorrect, questions.Length) + " correct");
             playAgain = Replay();
@@ -39,6 +46,12 @@ public class Program
 
         Console.WriteLine("But I also have to say, for the umpty-umpth time, that life isn't fair. It's just fairer than death, that's all. \n\t William Goldman");
     }
+    /// <summary>
+    /// Calculates the percentage of correct answers.
+    /// </summary>
+    /// <param name="numberCorrectAnswers">The number of correct answers.</param>
+    /// <param name="numberOfQuestions">The total number of questions.</param>
+    /// <returns>A formatted percentage string representing the percentage of correct answers.</returns>
     public static string GetPercentCorrect(int numberCorrectAnswers, int numberOfQuestions)
     {
         double percentCorrect = (double)numberCorrectAnswers/ numberOfQuestions* 100;
@@ -46,11 +59,11 @@ public class Program
     }
 
 
-    /*
-    * This method asks a question to the user, gets their guess, and displays the result
-    * @param question The question to ask.
-    * @return A boolean indicating whether the user's guess was correct or not.
-    */
+    /// <summary>
+    /// Asks a question, captures the user's guess, and returns whether the answer was correct.
+    /// </summary>
+    /// <param name="question">The question to ask the user.</param>
+    /// <returns><c>true</c> if the user's guess is correct; otherwise, <c>false</c>.</returns>
     public static bool AskQuestion(Question question)
     {
         DisplayQuestion(question);
@@ -60,22 +73,22 @@ public class Program
     }
 
 
-    /*
-    * This method gets the user's guess from the console.
-    * @return A string representing the user's guess.
-    */
+    /// <summary>
+    /// Reads the user's guess from the console.
+    /// </summary>
+    /// <returns>The user's input as a string.</returns>
     public static string GetGuessFromUser()
     {
         return Console.ReadLine();
     }
 
 
-    /*
-    * This method displays the result of the user's guess.
-    * @param userGuess The user's guess.
-    * @param question The question being asked.
-    * @return A boolean indicating whether the user's guess was correct or not.
-    */
+    /// <summary>
+    /// Displays the result of the user's guess for the specified question.
+    /// </summary>
+    /// <param name="userGuess">The user's guess.</param>
+    /// <param name="question">The question being answered.</param>
+    /// <returns><c>true</c> if the guess matches the correct answer; otherwise, <c>false</c>.</returns>
     public static bool DisplayResult(string userGuess, Question question)
     {
         if (userGuess == question.CorrectAnswerIndex)
@@ -89,10 +102,10 @@ public class Program
     }
 
 
-    /*
-    * This method displays a question and its possible answers to the console.
-    * @param question The question to display.
-    */
+    /// <summary>
+    /// Displays the question text and answer choices to the console.
+    /// </summary>
+    /// <param name="question">The question to display.</param>
     public static void DisplayQuestion(Question question)
     {
         Console.WriteLine("Question: " + question.Text);
@@ -103,21 +116,21 @@ public class Program
     }
 
 
-    /* 
-    * This method returns the file path of the trivia questions file.
-    * @return A string representing the file path of the trivia questions file.
-    */
+    /// <summary>
+    /// Returns the file path for the trivia questions file.
+    /// </summary>
+    /// <returns>The path to the trivia questions file.</returns>
     public static string GetFilePath()
     {
         return "Trivia.txt";
     }
 
 
-    /*
-    * This method loads questions from a file and returns them as an array of Question objects.
-    * @param filePath The path to the file containing the questions.
-    * @return An array of Question objects.
-    */
+    /// <summary>
+    /// Loads questions from a file and returns them as an array of <see cref="Question"/> objects.
+    /// </summary>
+    /// <param name="filePath">The path to the file containing the questions.</param>
+    /// <returns>An array of questions loaded from the file.</returns>
     public static Question[] LoadQuestions(string filePath)
     {
         string[] lines = File.ReadAllLines(filePath);
@@ -157,10 +170,10 @@ public class Program
         return char.ToUpper(key.KeyChar) == 'P';
     }
 
-    /*
-    * This method prompts the user to select a quiz and returns their selection as an integer.
-    * @return An integer representing the user's quiz selection (1 or 2).
-    */
+    /// <summary>
+    /// Prompts the user to choose which quiz to take.
+    /// </summary>
+    /// <returns>The selected quiz number, either <c>1</c> or <c>2</c>.</returns>
     public static int GetQuizInputFromUser()
     {
         while (true)

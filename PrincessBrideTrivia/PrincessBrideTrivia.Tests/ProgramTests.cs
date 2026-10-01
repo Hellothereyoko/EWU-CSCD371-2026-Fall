@@ -1,8 +1,15 @@
 namespace PrincessBrideTrivia.Tests;
 
+/// <summary>
+/// Contains unit tests for the trivia program behavior.
+/// </summary>
 [TestClass]
 public class ProgramTests
 {
+
+    /// <summary>
+    /// Verifies that a valid question file produces the expected number of loaded questions.
+    /// </summary>
     [TestMethod]
     public void LoadQuestions_ValidFilePath_ReturnsCorrectNumberOfQuestions()
     {
@@ -24,6 +31,12 @@ public class ProgramTests
         }
     }
 
+
+    /// <summary>
+    /// Verifies that a guessed answer returns the expected pass/fail result.
+    /// </summary>
+    /// <param name="userGuess">The user's guess.</param>
+    /// <param name="expectedResult"><c>true</c> when the guess matches the correct answer; otherwise, <c>false</c>.</param>
     [TestMethod]
     [DataRow("1", true)]
     [DataRow("2", false)]
@@ -40,6 +53,10 @@ public class ProgramTests
         Assert.AreEqual(expectedResult, displayResult);
     }
 
+
+    /// <summary>
+    /// Verifies that the trivia file path resolves to an existing file.
+    /// </summary>
     [TestMethod]
     public void GetFilePath_WhenCalled_ReturnsExistingFilePath()
     {
@@ -52,6 +69,13 @@ public class ProgramTests
         Assert.IsTrue(File.Exists(filePath));
     }
 
+
+    /// <summary>
+    /// Verifies that the percentage string is formatted correctly for valid input values.
+    /// </summary>
+    /// <param name="numberOfCorrectGuesses">The number of correct guesses.</param>
+    /// <param name="numberOfQuestions">The total number of questions.</param>
+    /// <param name="expectedString">The expected formatted percentage string.</param>
     [TestMethod]
     [DataRow(1, 1, "100%")]
     [DataRow(5, 10, "50%")]
@@ -70,6 +94,11 @@ public class ProgramTests
     }
 
 
+    /// <summary>
+    /// Creates a temporary trivia question file with the requested number of entries.
+    /// </summary>
+    /// <param name="filePath">The path to the file to create.</param>
+    /// <param name="numberOfQuestions">The number of question entries to generate.</param>
     private static void GenerateQuestionsFile(string filePath, int numberOfQuestions)
     {
         for (int i = 0; i < numberOfQuestions; i++)
@@ -85,6 +114,14 @@ public class ProgramTests
             File.AppendAllLines(filePath, lines);
         }
     }
+
+
+    /// <summary>
+    /// Verifies that invalid quiz selections are rejected until a valid value is entered.
+    /// </summary>
+    /// <param name="simInput">The simulated console input sequence.</param>
+    /// <param name="expectedResult">The expected quiz selection after processing the input.</param>
+    [ResourceLock(WellKnownResources.Console)] // MSTEST0074: on 'Console.SetIn'
     [TestMethod]
     [DataRow(3, 9, "33%")]   // rounds down 33.33
     [DataRow(6, 9, "67%")]   // rounds up 66.67
