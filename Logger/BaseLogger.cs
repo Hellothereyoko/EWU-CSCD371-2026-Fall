@@ -27,10 +27,9 @@ public abstract class BaseLogger
     public abstract void Log(LogLevel logLevel, string message);
 
 
-        //auto property to get the log level of the logger.
-            // public LogLevel LogLevel { get; set; } = LogLevel.Info;
+    //Add an auto property to store the class name that created the logger.
+    public string ClassName { get; set; }   
 
-        //Call upon the create logger function in LogFactory to create a logger for the specified class name.
-            // public static BaseLogger CreateLogger(string className);
+    
 }
 

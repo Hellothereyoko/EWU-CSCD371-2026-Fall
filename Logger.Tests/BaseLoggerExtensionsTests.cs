@@ -13,9 +13,15 @@ public class BaseLoggerExtensionsTests
         // Arrange
 
         // Act
-        //BaseLoggerExtensions.Error(null, "");
-
-        // Assert
+        try
+        {
+            BaseLoggerExtensions.Error(null, "");
+            Assert.Fail("Expected ArgumentNullException");
+        }
+        catch (System.ArgumentNullException)
+        {
+            // expected
+        }
     }
 
     [TestMethod]
@@ -25,7 +31,7 @@ public class BaseLoggerExtensionsTests
         var logger = new TestLogger();
 
         // Act
-        //logger.Error("Message {0}", 42);
+        logger.Error("Message {0}", 42);
 
         // Assert
         Assert.HasCount(1, logger.LoggedMessages);
