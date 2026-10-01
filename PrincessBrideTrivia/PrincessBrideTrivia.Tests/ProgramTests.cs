@@ -148,4 +148,11 @@ public class ProgramTests
             Console.SetIn(originalIn);
         }
     }
+    [TestMethod]
+    [DataRow(3, 9, "33%")]   // rounds down 33.33
+    [DataRow(6, 9, "67%")]   // rounds up 66.67
+    public void GetPercentCorrect_NinthsRoundCorrectly(int correct, int total, string expected)
+    {
+        Assert.AreEqual(expected, Program.GetPercentCorrect(correct, total));
+    }
 }

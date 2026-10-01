@@ -1,4 +1,6 @@
-﻿namespace PrincessBrideTrivia; //Inherits Project Space 
+﻿using System.Runtime.CompilerServices;
+
+namespace PrincessBrideTrivia; //Inherits Project Space 
 
 public class Program
 {
@@ -9,23 +11,36 @@ public class Program
     /// </summary>
     public static void Main(string[] args)
     {
-        
         string filePath = GetFilePath();
         Question[] questions = LoadQuestions(filePath);
+        bool playAgain;
 
-       
-        int numberCorrect = 0;
-        for (int i = 0; i < questions.Length; i++)
+        Console.WriteLine();
+        Console.WriteLine("╔══════════════════════════════════════════╗");
+        Console.WriteLine("║                                          ║");
+        Console.WriteLine("║           PRINCESS BRIDE TRIVIA          ║");
+        Console.WriteLine("║                                          ║");
+        Console.WriteLine("╚══════════════════════════════════════════╝");
+        Console.WriteLine();
+        do
         {
-            bool result = AskQuestion(questions[i]);
-            if (result)
+            int numberCorrect = 0;
+            for (int i = 0; i < questions.Length; i++)
             {
-                numberCorrect++; 
+                bool result = AskQuestion(questions[i]);
+                if (result)
+                {
+                    numberCorrect++;
+                }
+                
             }
+            Console.WriteLine("You got " + GetPercentCorrect(numberCorrect, questions.Length) + " correct");
+            playAgain = Replay();
         }
-        Console.WriteLine("You got " + GetPercentCorrect(numberCorrect, questions.Length) + " correct");
-    }
+        while (playAgain == true);
 
+        Console.WriteLine("But I also have to say, for the umpty-umpth time, that life isn't fair. It's just fairer than death, that's all. \n\t\t\t -William Goldman");
+    }
 
     /// <summary>
     /// Calculates the percentage of correct answers.
@@ -35,8 +50,9 @@ public class Program
     /// <returns>A formatted percentage string representing the percentage of correct answers.</returns>
     public static string GetPercentCorrect(int numberCorrectAnswers, int numberOfQuestions)
     {
-        double percentCorrect = (double)numberCorrectAnswers/ numberOfQuestions* 100;
-        return Math.Round(percentCorrect, MidpointRounding.AwayFromZero) + "%"; // bug fix// cast int vals to double for division and rounded the return value to nearest decimal
+        double percentCorrect = ((double)numberCorrectAnswers/ numberOfQuestions)* 100;
+        return Math.Round((double)percentCorrect, MidpointRounding.AwayFromZero) + "%"; // bug fix// cast int vals to double for division and rounded the return value to 
+        // nearest decimal
     }
 
 
@@ -135,9 +151,21 @@ public class Program
             question.Answers[1] = answer2;
             question.Answers[2] = answer3;
             question.CorrectAnswerIndex = correctAnswerIndex;
-            questions[i] = question; // bug fix // add the question object to the array
+            questions[i] = question;
+             // bug fix // add the question object to the array
         }
         return questions;
+    }
+    // Added feature, prompt user to replay and returns true if the player presses p key, false otherwise.
+    public static bool Replay()
+    {
+        Console.WriteLine();
+        Console.WriteLine("Press P to play trivia again, or any other key to quit.");
+
+        ConsoleKeyInfo key = Console.ReadKey(true); // true = don't echo the key on screen
+        Console.WriteLine();
+
+        return char.ToUpper(key.KeyChar) == 'P';
     }
 
 
