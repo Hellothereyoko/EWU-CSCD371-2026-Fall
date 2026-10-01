@@ -6,4 +6,10 @@ namespace Logger.Tests;
 public class LogFactoryTests
 {
 
+    //Create Logger Test 
+
+
+    //Configure Logger Test
+
+
 }
