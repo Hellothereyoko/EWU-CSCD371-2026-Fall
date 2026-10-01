@@ -155,7 +155,7 @@ public class Program
         Console.WriteLine();
 
         return char.ToUpper(key.KeyChar) == 'P';
-
+    }
 
     /*
     * This method prompts the user to select a quiz and returns their selection as an integer.
