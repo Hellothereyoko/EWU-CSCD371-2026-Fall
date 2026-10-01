@@ -15,11 +15,11 @@ public class Program
         bool playAgain;
 
         Console.WriteLine();
-        Console.WriteLine("╔═════════════════════=═════════════════════╗");
-        Console.WriteLine("║                                           ║");
-        Console.WriteLine("║           PRINCESS BRIDE TRIVIA           ║");
-        Console.WriteLine("║                                           ║");
-        Console.WriteLine("╚════════════════════=══════════════════════╝");
+        Console.WriteLine("╔══════════════════════════════════════════╗");
+        Console.WriteLine("║                                          ║");
+        Console.WriteLine("║           PRINCESS BRIDE TRIVIA          ║");
+        Console.WriteLine("║                                          ║");
+        Console.WriteLine("╚══════════════════════════════════════════╝");
         Console.WriteLine();
         do
         {
