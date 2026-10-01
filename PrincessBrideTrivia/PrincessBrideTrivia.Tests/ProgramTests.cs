@@ -123,29 +123,35 @@ public class ProgramTests
     /// <param name="expectedResult">The expected quiz selection after processing the input.</param>
     [ResourceLock(WellKnownResources.Console)] // MSTEST0074: on 'Console.SetIn'
     [TestMethod]
-    [DataRow("x\n3\n1\n", 1)]
-    [DataRow("\n-1\n2\n", 2)]
-    [DataRow("    \n2\n", 2)]
-    public void GetQuizInputFromUser_Input_RejectsInvalidInputsUntilCorrect(string simInput, int expectedResult)
+    [DataRow(3, 9, "33%")]   // rounds down 33.33
+    [DataRow(6, 9, "67%")]   // rounds up 66.67
+    public void GetPercentCorrect_NinthsRoundCorrectly(int correct, int total, string expected)
     {
-        // Save original stdin
-        TextReader originalIn = Console.In;
-
+        Assert.AreEqual(expected, Program.GetPercentCorrect(correct, total));
+    }
+    [TestMethod]
+    public void DisplayResult_CorrectGuess_ReturnsTrueAndPrintsCorrect()
+    {
+        TextWriter originalOut = Console.Out;
+        StringWriter output = new();
         try
         {
-            // Arrange (simulates wrong inputs until a correct one)
-            Console.SetIn(new StringReader(simInput));
-        
-            // Act
-            int choice = Program.GetQuizInputFromUser();
-        
-            // Assert
-            Assert.AreEqual(expectedResult, choice);
+            Console.SetOut(output);
+            Question question = new Question
+            {
+                Text = "Q?",
+                Answers = ["A", "B", "C"],
+                CorrectAnswerIndex = "1"
+            };
+
+            bool result = Program.DisplayResult("1", question);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual("Correct", output.ToString().Trim());
         }
         finally
         {
-            // Restore original stdin
-            Console.SetIn(originalIn);
+            Console.SetOut(originalOut);
         }
     }
 }

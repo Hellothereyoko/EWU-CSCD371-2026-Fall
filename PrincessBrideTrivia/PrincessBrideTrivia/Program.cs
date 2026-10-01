@@ -1,4 +1,6 @@
-﻿namespace PrincessBrideTrivia; //Inherits Project Space 
+using System.Reflection.Metadata;
+
+namespace PrincessBrideTrivia;
 
 public class Program
 {
@@ -12,21 +14,38 @@ public class Program
         
         string filePath = GetFilePath();
         Question[] questions = LoadQuestions(filePath);
+        bool playAgain;
+
+        Console.WriteLine();
+        Console.WriteLine("╔══════════════════════════════════════════╗");
+        Console.WriteLine("║                                          ║");
+        Console.WriteLine("║           PRINCESS BRIDE TRIVIA          ║");
+        Console.WriteLine("║                                          ║");
+        Console.WriteLine("╚══════════════════════════════════════════╝");
+        Console.WriteLine();
+        do
 
        
         int numberCorrect = 0;
         for (int i = 0; i < questions.Length; i++)
         {
-            bool result = AskQuestion(questions[i]);
-            if (result)
+            int numberCorrect = 0;
+            for (int i = 0; i < questions.Length; i++)
             {
+                bool result = AskQuestion(questions[i]);
+                if (result)
+                {
+                    numberCorrect++;
+                }
                 numberCorrect++; 
             }
+            Console.WriteLine("You got " + GetPercentCorrect(numberCorrect, questions.Length) + " correct");
+            playAgain = Replay();
         }
-        Console.WriteLine("You got " + GetPercentCorrect(numberCorrect, questions.Length) + " correct");
+        while (playAgain == true);
+
+        Console.WriteLine("But I also have to say, for the umpty-umpth time, that life isn't fair. It's just fairer than death, that's all. \n\t William Goldman");
     }
-
-
     /// <summary>
     /// Calculates the percentage of correct answers.
     /// </summary>
@@ -139,7 +158,17 @@ public class Program
         }
         return questions;
     }
+    // Added feature, prompt user to replay and returns true if the player presses p key, false otherwise.
+    public static bool Replay()
+    {
+        Console.WriteLine();
+        Console.WriteLine("Press P to play trivia again, or any other key to quit.");
 
+        ConsoleKeyInfo key = Console.ReadKey(true); // true = don't echo the key on screen
+        Console.WriteLine();
+
+        return char.ToUpper(key.KeyChar) == 'P';
+    }
 
     /// <summary>
     /// Prompts the user to choose which quiz to take.
