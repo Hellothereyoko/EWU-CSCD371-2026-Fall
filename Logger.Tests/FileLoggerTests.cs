@@ -119,4 +119,64 @@ public class FileLoggerTests
         Assert.Contains("Information", content);
         Assert.Contains("Debug", content);
     }
+
+    [TestMethod]
+    public void FileLogger_Constructor_ThrowsOnNullOrWhitespace()
+    {
+        try
+        {
+            _ = new FileLogger(null!);
+            Assert.Fail("Expected ArgumentException for null filePath");
+        }
+        catch (ArgumentException)
+        {
+            // expected
+        }
+
+        try
+        {
+            _ = new FileLogger("   ");
+            Assert.Fail("Expected ArgumentException for whitespace filePath");
+        }
+        catch (ArgumentException)
+        {
+            // expected
+        }
+    }
+
+    [TestMethod]
+    public void FileLogger_Log_WithNullClassName_WritesWithoutClass()
+    {
+        // Arrange
+        var filePath = _testFilePath;
+        var logger = new FileLogger(filePath); // ClassName not set (null)
+        var message = "NoClass";
+
+        // Act
+        logger.Log(LogLevel.Information, message);
+
+        // Assert
+        Assert.IsTrue(File.Exists(filePath));
+        var content = File.ReadAllText(filePath);
+        Assert.Contains("Information", content);
+        Assert.Contains(message, content);
+        Assert.IsFalse(content.Contains(nameof(FileLoggerTests)));
+    }
+
+    [TestMethod]
+    public void FileLogger_Log_NonExistentDirectory_DoesNotCreateFile()
+    {
+        // Arrange
+        var dir = Path.Combine(Path.GetTempPath(), "nonexistent", Guid.NewGuid().ToString());
+        var filePath = Path.Combine(dir, "log.txt");
+        var logger = new FileLogger(filePath) { ClassName = nameof(FileLoggerTests) };
+
+        // Act
+        logger.Log(LogLevel.Debug, "Should not create file");
+
+        // Assert - because FileLogger swallows IO exceptions, no file should exist
+        Assert.IsFalse(File.Exists(filePath));
+    }
+
+  
 }
