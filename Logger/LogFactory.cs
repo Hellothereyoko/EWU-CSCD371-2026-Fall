@@ -29,7 +29,7 @@ public class LogFactory
             return null;
         }
 
-        return new FileLogger(_filePath, className);
+        return new FileLogger(_filePath) { ClassName = className };
     }
 
 

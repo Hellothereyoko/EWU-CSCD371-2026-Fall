@@ -12,14 +12,12 @@ public class FileLogger : BaseLogger
 
 
     /// <summary>
-    /// Initializes a new instance of the FileLogger class with the specified file path and class name.
+    /// Initializes a new instance of the FileLogger class with the specified file path.
     /// </summary>
     /// <param name="filePath">The path to the file where log messages will be written.</param>
-    /// <param name="className">The name of the class that created the logger.</param>
-    public FileLogger(string filePath, string className)
+    public FileLogger(string filePath)
     {
         _filePath = filePath;
-        ClassName = className;
     }
 
 
