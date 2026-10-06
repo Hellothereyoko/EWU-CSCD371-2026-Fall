@@ -50,7 +50,7 @@ public class LogFactoryTests
 
         // Assert
         Assert.IsNotNull(logger);
-        Assert.IsInstanceOfType(logger, typeof(FileLogger));
+        Assert.IsInstanceOfType<FileLogger>(logger);
     }
 
     [TestMethod]
@@ -65,7 +65,7 @@ public class LogFactoryTests
 
         // Assert
         Assert.IsNotNull(logger);
-        Assert.IsInstanceOfType(logger, typeof(BaseLogger));
+        Assert.IsInstanceOfType<BaseLogger>(logger);
     }
 
     [TestMethod]
@@ -98,7 +98,7 @@ public class LogFactoryTests
 
         // Assert
         var content = File.ReadAllText(_testFilePath);
-        Assert.IsTrue(content.Contains(className));
+        Assert.Contains(className, content);
     }
 
     [TestMethod]
@@ -129,7 +129,7 @@ public class LogFactoryTests
         // Act
         factory.ConfigureFileLogger(filePath1);
         var logger1 = factory.CreateLogger(nameof(LogFactoryTests));
-        
+
         factory.ConfigureFileLogger(filePath2);
         var logger2 = factory.CreateLogger(nameof(LogFactoryTests));
 
