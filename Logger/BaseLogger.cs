@@ -27,8 +27,8 @@ public abstract class BaseLogger
     public abstract void Log(LogLevel logLevel, string message);
 
 
-    //auto property to store the class name that created the logger. declared as nullable
-    public string? ClassName { get; set; }   
+    // Auto property to store the class name that created the logger. Default to empty to satisfy nullability.
+    public string ClassName { get; set; } = string.Empty;
 
     
 }

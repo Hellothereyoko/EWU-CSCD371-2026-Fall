@@ -17,6 +17,7 @@ The `LogFactory` should be updated with a new method `ConfigureFileLogger`. This
 public class LogFactory
 {
     private string? _filePath;
+    private readonly object _lock = new();
     /// <summary>
     /// Creates a new instance of a logger for the specified class name. If the file logger has not been configured, it returns null.   
     /// </summary>
@@ -24,12 +25,18 @@ public class LogFactory
     /// <returns> a "FileLogger" object>
     public BaseLogger? CreateLogger(string className) // initialize classname at logger creation
     {
-        if (string.IsNullOrEmpty(_filePath))
+        string? filePath;
+        lock (_lock)
+        {
+            filePath = _filePath;
+        }
+
+        if (string.IsNullOrEmpty(filePath))
         {
             return null;
         }
 
-        return new FileLogger(_filePath) { ClassName = className };
+        return new FileLogger(filePath) { ClassName = className };
     }
 
 
@@ -39,6 +46,9 @@ public class LogFactory
     /// <param name="filePath"></param>
     public void ConfigureFileLogger(string filePath)
     {
-        _filePath = filePath;
+        lock (_lock)
+        {
+            _filePath = filePath;
+        }
     }
 }
