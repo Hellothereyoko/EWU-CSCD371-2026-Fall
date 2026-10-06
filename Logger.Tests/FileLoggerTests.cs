@@ -200,6 +200,30 @@ public class FileLoggerTests
     }
 
     [TestMethod]
+    public void FileLogger_Log_ReadOnlyFile_DoesNotThrow()
+    {
+        // Arrange
+        var filePath = _testFilePath;
+        File.WriteAllText(filePath, "initial");
+        File.SetAttributes(filePath, FileAttributes.ReadOnly);
+        var logger = new FileLogger(filePath) { ClassName = nameof(FileLoggerTests) };
+
+        try
+        {
+            // Act
+            logger.Log(LogLevel.Error, "Attempt write to readonly");
+
+            // Assert: no exception escapes and file still exists
+            Assert.IsTrue(File.Exists(filePath));
+        }
+        finally
+        {
+            // Cleanup attribute so TestCleanup can delete
+            File.SetAttributes(filePath, FileAttributes.Normal);
+        }
+    }
+
+    [TestMethod]
     public void FileLogger_Constructor_ThrowsOnNullOrWhitespace()
     {
         try
