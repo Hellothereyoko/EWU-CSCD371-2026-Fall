@@ -7,7 +7,7 @@ namespace Logger.Tests;
 [TestClass]
 public class LogFactoryTests
 {
-    private string _testFilePath;
+    private string _testFilePath = string.Empty;
 
     [TestInitialize]
     public void Setup()
@@ -81,7 +81,7 @@ public class LogFactoryTests
 
         // Assert
         Assert.IsNotNull(logger);
-        Assert.AreEqual(expectedClassName, logger.ClassName);
+        Assert.AreEqual(expectedClassName, logger!.ClassName);
     }
 
     [TestMethod]
@@ -94,7 +94,7 @@ public class LogFactoryTests
 
         // Act
         var logger = factory.CreateLogger(className);
-        logger.Log(LogLevel.Information, "Test message");
+        logger!.Log(LogLevel.Information, "Test message");
 
         // Assert
         var content = File.ReadAllText(_testFilePath);

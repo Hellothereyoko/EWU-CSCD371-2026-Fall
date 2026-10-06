@@ -4,7 +4,7 @@ namespace Logger;
 
 public static class BaseLoggerExtensions
 {
-  public static void Error(this BaseLogger logger, string message, params object[] args)
+  public static void Error(this BaseLogger? logger, string? message, params object[] args)
   {
     ArgumentNullException.ThrowIfNull(logger);
     ArgumentNullException.ThrowIfNull(message);
@@ -13,7 +13,7 @@ public static class BaseLoggerExtensions
     logger.Log(LogLevel.Error, formatted);
   }
 
-  public static void Warning(this BaseLogger logger, string message, params object[] args)
+  public static void Warning(this BaseLogger? logger, string? message, params object[] args)
   {
     ArgumentNullException.ThrowIfNull(logger);
     ArgumentNullException.ThrowIfNull(message);
@@ -22,7 +22,7 @@ public static class BaseLoggerExtensions
     logger.Log(LogLevel.Warning, formatted);
   }
 
-  public static void Information(this BaseLogger logger, string message, params object[] args)
+  public static void Information(this BaseLogger? logger, string? message, params object[] args)
   {
     ArgumentNullException.ThrowIfNull(logger);
     ArgumentNullException.ThrowIfNull(message);
@@ -31,7 +31,7 @@ public static class BaseLoggerExtensions
     logger.Log(LogLevel.Information, formatted);
   }
 
-  public static void Debug(this BaseLogger logger, string message, params object[] args)
+  public static void Debug(this BaseLogger? logger, string? message, params object[] args)
   {
     ArgumentNullException.ThrowIfNull(logger);
     ArgumentNullException.ThrowIfNull(message);

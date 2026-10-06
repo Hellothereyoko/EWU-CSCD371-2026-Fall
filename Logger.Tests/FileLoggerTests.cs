@@ -1,13 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Globalization;
 
 namespace Logger.Tests;
 
 [TestClass]
 public class FileLoggerTests
 {
-    private string _testFilePath;
+    private string _testFilePath = string.Empty;
 
     [TestInitialize]
     public void Setup()
@@ -94,8 +95,8 @@ public class FileLoggerTests
         // Assert
         var content = File.ReadAllText(filePath);
         Assert.IsGreaterThan(0, content.Length);
-        // Verify that the content starts with a date/time pattern (year should be present)
-        Assert.Contains(beforeTime.Year.ToString(), content);
+        // Verify that the content contains the year (culture-invariant)
+        Assert.Contains(beforeTime.Year.ToString(CultureInfo.InvariantCulture), content);
     }
 
     [TestMethod]
