@@ -121,6 +121,85 @@ public class FileLoggerTests
     }
 
     [TestMethod]
+    public void FileLogger_Log_ConcurrentWrites_AllLinesPresent()
+    {
+        // Arrange
+        var filePath = _testFilePath;
+        var logger = new FileLogger(filePath) { ClassName = nameof(FileLoggerTests) };
+        var tasks = new System.Collections.Generic.List<System.Threading.Tasks.Task>();
+        int tasksCount = 8;
+        int messagesPerTask = 100;
+
+        // Act
+        for (int t = 0; t < tasksCount; t++)
+        {
+            int taskIndex = t;
+            tasks.Add(System.Threading.Tasks.Task.Run(() =>
+            {
+                for (int i = 0; i < messagesPerTask; i++)
+                {
+                    logger.Log(LogLevel.Information, $"T{taskIndex}-Msg{i}");
+                }
+            }));
+        }
+
+        System.Threading.Tasks.Task.WaitAll(tasks.ToArray());
+
+        // Assert
+        var lines = File.ReadAllLines(filePath);
+        Assert.AreEqual(tasksCount * messagesPerTask, lines.Length);
+    }
+
+    [TestMethod]
+    public void FileLogger_Log_LongMessage_WrittenSuccessfully()
+    {
+        // Arrange
+        var filePath = _testFilePath;
+        var logger = new FileLogger(filePath) { ClassName = nameof(FileLoggerTests) };
+        var longMessage = new string('x', 50_000);
+
+        // Act
+        logger.Log(LogLevel.Information, longMessage);
+
+        // Assert
+        var content = File.ReadAllText(filePath);
+        Assert.Contains(longMessage.Substring(0, 100), content);
+    }
+
+    [TestMethod]
+    public void FileLogger_Log_MessageWithNewline_SplitsIntoMultipleLines()
+    {
+        // Arrange
+        var filePath = _testFilePath;
+        var logger = new FileLogger(filePath) { ClassName = nameof(FileLoggerTests) };
+        var message = "LineA\nLineB";
+
+        // Act
+        logger.Log(LogLevel.Warning, message);
+
+        // Assert: since message contains a newline, file should contain both parts
+        var content = File.ReadAllText(filePath);
+        Assert.Contains("LineA", content);
+        Assert.Contains("LineB", content);
+    }
+
+    [TestMethod]
+    public void FileLogger_Log_UnicodeMessage_WrittenSuccessfully()
+    {
+        // Arrange
+        var filePath = _testFilePath;
+        var logger = new FileLogger(filePath) { ClassName = nameof(FileLoggerTests) };
+        var unicode = "テスト — тест — اختبار — 🚀";
+
+        // Act
+        logger.Log(LogLevel.Debug, unicode);
+
+        // Assert
+        var content = File.ReadAllText(filePath);
+        Assert.Contains(unicode, content);
+    }
+
+    [TestMethod]
     public void FileLogger_Constructor_ThrowsOnNullOrWhitespace()
     {
         try

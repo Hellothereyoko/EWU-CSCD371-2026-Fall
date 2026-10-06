@@ -8,6 +8,7 @@ namespace Logger;
 public class FileLogger : BaseLogger
 {
     private readonly string _filePath;
+    private readonly object _writeLock = new();
 
     /// <summary>
     /// Initializes a new instance of the FileLogger class with the specified file path.
@@ -29,7 +30,10 @@ public class FileLogger : BaseLogger
         var logEntry = $"{DateTime.Now} {ClassName} {logLevel}: {message}";
         try
         {
-            System.IO.File.AppendAllText(_filePath, logEntry + Environment.NewLine);
+            lock (_writeLock)
+            {
+                System.IO.File.AppendAllText(_filePath, logEntry + Environment.NewLine);
+            }
         }
         catch (System.IO.IOException)
         {
