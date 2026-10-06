@@ -27,6 +27,17 @@ public class FileLogger : BaseLogger
     public override void Log(LogLevel logLevel, string message)
     {
         var logEntry = $"{DateTime.Now} {ClassName} {logLevel}: {message}";
-        System.IO.File.AppendAllText(_filePath, logEntry + Environment.NewLine);
+        try
+        {
+            System.IO.File.AppendAllText(_filePath, logEntry + Environment.NewLine);
+        }
+        catch (System.IO.IOException)
+        {
+            // Swallow IO exceptions to avoid crashing the host application in error scenarios (disk full, locked file, etc.).
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Ignore permission issues similarly.
+        }
     }
 }
