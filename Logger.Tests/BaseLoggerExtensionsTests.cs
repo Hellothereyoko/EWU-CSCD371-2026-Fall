@@ -63,6 +63,29 @@ public class BaseLoggerExtensionsTests
         Assert.AreEqual("Use {0}", logger.LoggedMessages[0].Message);
     }
     [TestMethod]
+    public void Warning_WithData_LogsMessage()
+    {
+        var logger = new TestLogger();
+
+        logger.Warning("Warn {0}", 99);
+
+        Assert.HasCount(1, logger.LoggedMessages);
+        Assert.AreEqual(LogLevel.Warning, logger.LoggedMessages[0].LogLevel);
+        Assert.AreEqual("Warn 99", logger.LoggedMessages[0].Message);
+    }
+
+    [TestMethod]
+    public void Debug_WithData_LogsMessage()
+    {
+        var logger = new TestLogger();
+
+        logger.Debug("Debug {0}", "ok");
+
+        Assert.HasCount(1, logger.LoggedMessages);
+        Assert.AreEqual(LogLevel.Debug, logger.LoggedMessages[0].LogLevel);
+        Assert.AreEqual("Debug ok", logger.LoggedMessages[0].Message);
+    }
+    [TestMethod]
     public void Error_WithNullMsg_ThrowsException()
     {
         TestLogger logger = new TestLogger();
