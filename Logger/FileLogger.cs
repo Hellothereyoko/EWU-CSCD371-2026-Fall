@@ -17,6 +17,7 @@ public class FileLogger : BaseLogger
     /// <param name="filePath">The path to the file where log messages will be written.</param>
     public FileLogger(string filePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
         _filePath = filePath;
     }
 
