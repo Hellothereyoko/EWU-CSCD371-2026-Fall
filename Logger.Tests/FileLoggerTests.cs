@@ -51,9 +51,9 @@ public class FileLoggerTests
         // Assert
         Assert.IsTrue(File.Exists(filePath));
         var content = File.ReadAllText(filePath);
-        Assert.IsTrue(content.Contains("FileLoggerTests"));
-        Assert.IsTrue(content.Contains("Information"));
-        Assert.IsTrue(content.Contains(message));
+        Assert.Contains("FileLoggerTests", content);
+        Assert.Contains("Information", content);
+        Assert.Contains(message, content);
     }
 
     [TestMethod]
@@ -70,13 +70,13 @@ public class FileLoggerTests
 
         // Assert
         var lines = File.ReadAllLines(filePath);
-        Assert.AreEqual(3, lines.Length);
-        Assert.IsTrue(lines[0].Contains("Error"));
-        Assert.IsTrue(lines[0].Contains("First message"));
-        Assert.IsTrue(lines[1].Contains("Warning"));
-        Assert.IsTrue(lines[1].Contains("Second message"));
-        Assert.IsTrue(lines[2].Contains("Information"));
-        Assert.IsTrue(lines[2].Contains("Third message"));
+        Assert.HasCount(3, lines);
+        Assert.Contains("Error", lines[0]);
+        Assert.Contains("First message", lines[0]);
+        Assert.Contains("Warning", lines[1]);
+        Assert.Contains("Second message", lines[1]);
+        Assert.Contains("Information", lines[2]);
+        Assert.Contains("Third message", lines[2]);
     }
 
     [TestMethod]
@@ -93,9 +93,9 @@ public class FileLoggerTests
 
         // Assert
         var content = File.ReadAllText(filePath);
-        Assert.IsTrue(content.Length > 0);
+        Assert.IsGreaterThan(0, content.Length);
         // Verify that the content starts with a date/time pattern (year should be present)
-        Assert.IsTrue(content.Contains(beforeTime.Year.ToString()));
+        Assert.Contains(beforeTime.Year.ToString(), content);
     }
 
     [TestMethod]
@@ -113,9 +113,9 @@ public class FileLoggerTests
 
         // Assert
         var content = File.ReadAllText(filePath);
-        Assert.IsTrue(content.Contains("Error"));
-        Assert.IsTrue(content.Contains("Warning"));
-        Assert.IsTrue(content.Contains("Information"));
-        Assert.IsTrue(content.Contains("Debug"));
+        Assert.Contains("Error", content);
+        Assert.Contains("Warning", content);
+        Assert.Contains("Information", content);
+        Assert.Contains("Debug", content);
     }
 }
