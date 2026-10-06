@@ -16,10 +16,10 @@ public class FileLogger : BaseLogger
     /// </summary>
     /// <param name="filePath">The path to the file where log messages will be written.</param>
     /// <param name="className">The name of the class that created the logger.</param>
-    public FileLogger(string filePath, string className)
+    public FileLogger(string filePath) // removed classname initialization moved to LogFactory.cs
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
         _filePath = filePath;
-        ClassName = className;
     }
 
 
