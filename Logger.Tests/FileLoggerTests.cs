@@ -2,6 +2,8 @@
 using System;
 using System.IO;
 using System.Globalization;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Logger.Tests;
 
@@ -126,7 +128,7 @@ public class FileLoggerTests
         // Arrange
         var filePath = _testFilePath;
         var logger = new FileLogger(filePath) { ClassName = nameof(FileLoggerTests) };
-        var tasks = new System.Collections.Generic.List<System.Threading.Tasks.Task>();
+        var tasks = new List<Task>();
         int tasksCount = 8;
         int messagesPerTask = 100;
 
@@ -134,7 +136,7 @@ public class FileLoggerTests
         for (int t = 0; t < tasksCount; t++)
         {
             int taskIndex = t;
-            tasks.Add(System.Threading.Tasks.Task.Run(() =>
+            tasks.Add(Task.Run(() =>
             {
                 for (int i = 0; i < messagesPerTask; i++)
                 {
@@ -143,7 +145,7 @@ public class FileLoggerTests
             }));
         }
 
-        System.Threading.Tasks.Task.WaitAll(tasks.ToArray());
+        Task.WaitAll(tasks.ToArray());
 
         // Assert
         var lines = File.ReadAllLines(filePath);
