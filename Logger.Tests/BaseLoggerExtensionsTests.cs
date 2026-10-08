@@ -12,18 +12,7 @@ public class BaseLoggerExtensionsTests
     [TestMethod]
     public void Error_WithNullLogger_ThrowsException()
     {
-        // Arrange
-
-        // Act
-        try
-        {
-            BaseLoggerExtensions.Error(null, "");
-            Assert.Fail("Expected ArgumentNullException");
-        }
-        catch (System.ArgumentNullException)
-        {
-            // expected
-        }
+        Assert.ThrowsExactly<ArgumentNullException>(() => BaseLoggerExtensions.Error(null, ""));
     }
 
     [TestMethod]
