@@ -8,9 +8,19 @@ public static class Program
 {
     public static void Main()
     {
-        // Pgrm Start 
+        // Define vars inherited from IContact interface for Student and Employee classes.
+            // def 1st name
+            // def middle name (opt)
+            // def last name
+            // def record type (Student or Employee)
+
+
+        // Pgrm Start
+        System.Console.WriteLine("Contacts Application Started!"); 
+    
     
         // Create a new instance of the ContactBook class.
+
 
     }
 }
