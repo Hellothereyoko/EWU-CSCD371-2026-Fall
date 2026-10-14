@@ -4,7 +4,7 @@ namespace Contacts;
 /// <summary>
 /// This is the main entry point for the Contacts application.
 /// </summary>
-public static class Program
+public static class Program 
 {
     public static void Main()
     {
@@ -18,7 +18,7 @@ public static class Program
         // Pgrm Start
         System.Console.WriteLine("Contacts Application Started!"); 
     
-    
+
         // Create a new instance of the ContactBook class.
 
 
