@@ -9,7 +9,7 @@ public static class Program
         
         while (true)
         {
-            Console.WriteLine("**********Main Menu:**********");
+            Console.WriteLine("********** Main Menu **********");
             Console.WriteLine("1. Add a new contact.");
             Console.WriteLine("2. List all contacts.");
             Console.WriteLine("3. Remove a contact.");
@@ -26,7 +26,6 @@ public static class Program
                     break;
                 
                 case "2":
-                    //Console.WriteLine("Feature Not Implemented.");
                     DisplayContacts();
                     break;
                 
