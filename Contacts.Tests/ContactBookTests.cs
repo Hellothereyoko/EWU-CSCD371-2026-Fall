@@ -48,4 +48,35 @@ public class ContactBookTests
         // lookup by the not added ref should be true
         Assert.IsTrue(book.Contains(lookup));
     }
+    
+    [TestMethod]
+    public void ContactBookWithStudent_AddingEqualDataEmployee_StoresBothContacts()
+    {
+        ContactBook book = new();
+        
+        Student student = CreateStudent();
+        Employee employee = CreateEmployee();
+        
+        book.Add(student);
+        book.Add(employee);
+        
+        Assert.IsTrue(book.Contains(student));
+        Assert.IsTrue(book.Contains(employee));
+        Assert.HasCount(2, book.GetAll());
+    }
+    
+    [TestMethod]
+    public void ContactBookWithStudent_ContainsWithEqualDataEmployee_ReturnsFalse()
+    {
+        ContactBook book = new();
+        
+        Student student = CreateStudent();
+        Employee employee = CreateEmployee();
+        
+        book.Add(student);
+        
+        Assert.IsTrue(book.Contains(student));
+        // collection behavior should not find an employee of equal data to a contained student as equal
+        Assert.IsFalse(book.Contains(employee));
+    }
 }
