@@ -5,8 +5,7 @@ namespace Contacts;
 /// </summary>
 public interface IContact
 {
-    String FirstName {get; set;}
-    String MiddleName {get; set;}
-    String LastName {get; set;}
-    String RecordType {get; set;}
+    Guid Id { get; } // easiest way to demo ID considerations - could be replaced with something more readable / defined
+    FullName Name { get; }
+    string Email { get; } // probably replaced with List of emails at least for EC. Else replace with some ContactInfo record to possibly add phone numbers or more?
 }
