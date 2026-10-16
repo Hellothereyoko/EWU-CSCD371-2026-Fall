@@ -3,7 +3,7 @@
 namespace Contacts.Tests;
 
 [TestClass]
-public class InputUtilitiesTests
+public class ContactUtilitiesTests
 {
     #region Name Validation Tests
     
@@ -12,7 +12,7 @@ public class InputUtilitiesTests
     {
         const string? name = null;
         
-        bool result = InputUtilities.ValidateName(name, out string errorMessage);
+        bool result = ContactUtilities.ValidateName(name, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual("Name cannot be empty", errorMessage);
@@ -23,7 +23,7 @@ public class InputUtilitiesTests
     {
         const string name = " ";
         
-        bool result = InputUtilities.ValidateName(name, out string errorMessage);
+        bool result = ContactUtilities.ValidateName(name, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual("Name cannot be empty", errorMessage);
@@ -36,7 +36,7 @@ public class InputUtilitiesTests
     [DataRow("Jones-Perry")]
     public void ValidateName_WithProperName_ReturnsTrueAndEmptyErrorMessage(string name)
     {
-        bool result = InputUtilities.ValidateName(name, out string errorMessage);
+        bool result = ContactUtilities.ValidateName(name, out string errorMessage);
         
         Assert.IsTrue(result);
         Assert.AreEqual(string.Empty, errorMessage);
@@ -48,7 +48,7 @@ public class InputUtilitiesTests
     [DataRow("John!")]
     public void ValidateName_WithInvalidCharacter_ReturnsFalseAndErrorMessage(string name)
     {
-        bool result = InputUtilities.ValidateName(name, out string errorMessage);
+        bool result = ContactUtilities.ValidateName(name, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual(
@@ -65,7 +65,7 @@ public class InputUtilitiesTests
     [DataRow("Jo'-hn", '\'')]
     public void ValidateName_WithImproperStructure_ReturnsFalseAndErrorMessage(string name, char invalidCharacter)
     {
-        bool result = InputUtilities.ValidateName(name, out string errorMessage);
+        bool result = ContactUtilities.ValidateName(name, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual(
@@ -82,7 +82,7 @@ public class InputUtilitiesTests
     {
         const string? email = null;
         
-        bool result = InputUtilities.ValidateEmail(email, out string errorMessage);
+        bool result = ContactUtilities.ValidateEmail(email, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual("Email cannot be empty", errorMessage);
@@ -93,7 +93,7 @@ public class InputUtilitiesTests
     {
         const string email = " ";
         
-        bool result = InputUtilities.ValidateEmail(email, out string errorMessage);
+        bool result = ContactUtilities.ValidateEmail(email, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual("Email cannot be empty", errorMessage);
@@ -104,7 +104,7 @@ public class InputUtilitiesTests
     {
         const string email = "no at";
         
-        bool result = InputUtilities.ValidateEmail(email, out string errorMessage);
+        bool result = ContactUtilities.ValidateEmail(email, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual("Email must contain exactly one '@' character.", errorMessage);
@@ -115,7 +115,7 @@ public class InputUtilitiesTests
     {
         const string email = "one @ two @, red @, blue @";
         
-        bool result = InputUtilities.ValidateEmail(email, out string errorMessage);
+        bool result = ContactUtilities.ValidateEmail(email, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual("Email must contain exactly one '@' character.", errorMessage);
@@ -126,7 +126,7 @@ public class InputUtilitiesTests
     [DataRow("   @blankSpaceLocal")]
     public void ValidateEmail_InvalidLocalPart_ReturnsFalseAndErrorMessage(string email)
     {
-        bool result = InputUtilities.ValidateEmail(email, out string errorMessage);
+        bool result = ContactUtilities.ValidateEmail(email, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual("Email address must contain at least one character prior to '@'.", errorMessage);
@@ -141,7 +141,7 @@ public class InputUtilitiesTests
     [DataRow("john@wrong.")]
     public void ValidateEmail_InvalidDomainFormat_ReturnsFalseAndErrorMessage(string email)
     {
-        bool result = InputUtilities.ValidateEmail(email, out string errorMessage);
+        bool result = ContactUtilities.ValidateEmail(email, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual(
@@ -155,7 +155,7 @@ public class InputUtilitiesTests
     [DataRow("john@company.a&")]
     public void ValidateEmail_InvalidEmailDomainExtension_ReturnsFalseAndErrorMessage(string email)
     {
-        bool result = InputUtilities.ValidateEmail(email, out string errorMessage);
+        bool result = ContactUtilities.ValidateEmail(email, out string errorMessage);
         
         Assert.IsFalse(result);
         Assert.AreEqual(
@@ -170,7 +170,7 @@ public class InputUtilitiesTests
     [DataRow("johnsmith@company.co.uk")]
     public void ValidateEmail_ValidEmailExamples_ReturnsTrueAndEmptyErrorMessage(string email)
     {
-        bool result = InputUtilities.ValidateEmail(email, out string errorMessage);
+        bool result = ContactUtilities.ValidateEmail(email, out string errorMessage);
         
         Assert.IsTrue(result);
         Assert.AreEqual(string.Empty, errorMessage);

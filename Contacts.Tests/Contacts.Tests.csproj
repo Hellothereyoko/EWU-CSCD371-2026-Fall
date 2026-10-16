@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <Compile Include="ContactBookTests.cs" />
-    <Compile Include="InputUtilitiesTests.cs" />
+    <Compile Include="ContactUtilitiesTests.cs" />
     <Compile Include="ContactTests.cs" />
   </ItemGroup>
 

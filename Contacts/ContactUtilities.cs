@@ -1,6 +1,6 @@
 ﻿namespace Contacts;
 
-public static class InputUtilities
+public static class ContactUtilities
 {
     public static bool ValidateName(string? name, out string errorMessage)
     {
