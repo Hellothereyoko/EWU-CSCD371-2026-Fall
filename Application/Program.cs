@@ -41,10 +41,12 @@ public static class Program
                 case "4":
                     // TODO : Edit Contact Options
                     Console.WriteLine("Feature Not Implemented.");
-                    // EditContacts
+                    //if (HasContacts(true))
+                    // PromptEditContacts
                     break;
                 
                 case "5":
+                    // TODO : Persistence save here (redundant)
                     Console.WriteLine();
                     Console.WriteLine("Goodbye!");
                     return;
