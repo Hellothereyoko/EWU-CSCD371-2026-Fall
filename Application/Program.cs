@@ -46,7 +46,7 @@ public static class Program
                     break;
                 
                 case "5":
-                    // TODO : Persistence save here (redundant)
+                    // TODO : (redundant) Persistence save here
                     Console.WriteLine();
                     Console.WriteLine("Goodbye!");
                     return;
@@ -117,7 +117,7 @@ public static class Program
                 // TODO : EditContact(IContact) here
                 return;
             }
-            contactBook.Add(employeeToAdd);
+            AddContact(employeeToAdd);
         }
         
         void CreateStudent()
@@ -134,7 +134,7 @@ public static class Program
                 // TODO : EditContact(IContact) here
                 return;
             }
-            contactBook.Add(studentToAdd);
+            AddContact(studentToAdd);
         }
 
         // Responsibility : Get a FullName from user
@@ -224,13 +224,12 @@ public static class Program
                 Console.WriteLine();
                 Console.WriteLine("********** Edit Contact **********");
                 Console.WriteLine($"1. First Name : {firstName}");
-                Console.WriteLine($"2. Last Name  : {lastName}");
+                Console.WriteLine($"2. Last Name : {lastName}");
 
-                Console.WriteLine(
-                    $"3. Middle Name: " +
-                    $"{middleName ?? "Add Middle Name"}");
+                Console.WriteLine($"3. Middle Name : " +
+                                  $"{middleName ?? "Add A Middle Name"}");
 
-                Console.WriteLine($"4. Email      : {email}");
+                Console.WriteLine($"4. Email : {email}");
                 Console.WriteLine("5. Save Changes");
                 
                 Console.Write("Select field to edit: ");
@@ -290,7 +289,7 @@ public static class Program
                 
                 // TODO : Verify the selection?
                 
-                contactBook.Remove(selectedContact);
+                RemoveContact(selectedContact);
                 Console.WriteLine("Contact Selected was Removed.");
                 Console.WriteLine();
 
@@ -312,7 +311,19 @@ public static class Program
             }
         }
 
+        void RemoveContact(IContact contact)
+        {
+            contactBook.Remove(contact);
+            // TODO : Persistence Save
+        }
+
         #endregion
+
+        void AddContact(IContact contact)
+        {
+            contactBook.Add(contact);
+            // TODO : Persistence Save
+        }
 
         IContact PromptContactSelection()
         {
