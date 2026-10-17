@@ -16,13 +16,13 @@ public static class Program
             Console.WriteLine("4. Edit a contact.");
             Console.WriteLine("5. Exit the application.");
             
-            Console.Write("Please select an option (1-4): ");
+            Console.Write("Please select an option (1-5): ");
             string? input = Console.ReadLine();
 
             switch (input?.Trim())
             {
                 case "1":
-                    ShowAddContactMenu();
+                    PromptCreateContact();
                     break;
                 
                 case "2":
@@ -51,37 +51,143 @@ public static class Program
         }
         // "return;"
 
-        void ShowAddContactMenu()
+        // Responsibility : Selection of type of contact to create
+        void PromptCreateContact()
         {
+            Console.WriteLine();
+            Console.WriteLine("********** Add Contact **********");
             while (true)
             {
-                Console.WriteLine("********** Add Contact Menu **********");
                 Console.WriteLine("1. Add a new Employee.");
                 Console.WriteLine("2. Add a new Student.");
-                Console.WriteLine("3. Return to Main Menu.");
+                Console.WriteLine();
 
-                Console.Write("Please select an option (1-2): ");
+                Console.Write("Please select a contact type to add (1-2): ");
                 string? input = Console.ReadLine();
                 
                 switch (input?.Trim())
                 {
                     case "1":
-                        // TODO : Prompt for Creation Input
-                        contactBook.Add(new Employee(new FullName("John", "Smith"), "email"));
-                        break;
+                        CreateEmployee();
+                        return;
                 
                     case "2":
-                        // TODO: Prompt for Creation Input
-                        contactBook.Add(new Student(new FullName("John", "Smith"), "email"));
-                        break;
-                
-                    case "3":
+                        CreateStudent();
                         return;
                 
                     default:
                         Console.WriteLine("Invalid input.");
+                        Console.WriteLine();
                         break;
                 }
+            }
+        }
+
+        void CreateEmployee()
+        {
+            Employee employeeToAdd = new(
+                PromptFullName(), 
+                PromptEmail()
+            );
+            
+            // While loop for editing?
+            if (contactBook.Contains(employeeToAdd))
+            {
+                Console.WriteLine("Contact already exists.");
+                // TODO : EditContact(IContact) here
+                return;
+            }
+            contactBook.Add(employeeToAdd);
+        }
+        
+        void CreateStudent()
+        {
+            Student studentToAdd = new(
+                PromptFullName(), 
+                PromptEmail()
+            );
+
+            // While loop for editing?
+            if (contactBook.Contains(studentToAdd))
+            {
+                Console.WriteLine("Contact already exists.");
+                // TODO : EditContact(IContact) here
+                return;
+            }
+            contactBook.Add(studentToAdd);
+        }
+
+        // Responsibility : Get a FullName from user
+        FullName PromptFullName()
+        {
+            string firstName;
+            string lastName;
+            string? middleName;
+
+            while (true)
+            {
+                Console.WriteLine("Please Provide First Name: ");
+                string? input = Console.ReadLine();
+
+                if (ContactUtilities.ValidateName(input, out string error)
+                    && input is not null)
+                {
+                    firstName = input;
+                    break;
+                }
+                Console.WriteLine(error);
+            }
+
+            while (true)
+            {
+                Console.WriteLine("Please Provide Last Name: ");
+                string? input = Console.ReadLine();
+
+                if (ContactUtilities.ValidateName(input, out string error)
+                    && input is not null)
+                {
+                    lastName = input;
+                    break;
+                }
+                Console.WriteLine(error);
+            }
+
+            while (true)
+            {
+                Console.WriteLine("Please Provide Middle Name (Optional): ");
+                string? input = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    middleName = null;
+                    break;
+                }
+
+                if (ContactUtilities.ValidateName(input, out string error))
+                {
+                    middleName = input;
+                    break;
+                }
+                Console.WriteLine(error);
+            }
+            
+            return new FullName(firstName, lastName, middleName);
+        }
+
+        // Responsibility : Get a single email input from user
+        string PromptEmail()
+        {
+            while (true)
+            {
+                Console.WriteLine("Please Provide Email: ");
+                string? input = Console.ReadLine();
+
+                if (ContactUtilities.ValidateEmail(input, out string error)
+                    && input is not null)
+                {
+                    return input;
+                }
+                Console.WriteLine(error);
             }
         }
 
