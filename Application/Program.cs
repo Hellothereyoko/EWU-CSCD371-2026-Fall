@@ -1,4 +1,6 @@
-﻿namespace Contacts;
+﻿using Contacts;
+
+namespace Application;
 
 public static class Program
 {
@@ -26,12 +28,14 @@ public static class Program
                     break;
                 
                 case "2":
-                    DisplayContacts();
+                    if (HasContacts(true))
+                        DisplayContacts();
+                    WaitForUser();
                     break;
                 
                 case "3":
-                    Console.WriteLine("Feature Not Implemented.");
-                    PromptRemoveContact();
+                    if (HasContacts(true))
+                        PromptRemoveContact();
                     break;
                 
                 case "4":
@@ -41,6 +45,7 @@ public static class Program
                     break;
                 
                 case "5":
+                    Console.WriteLine();
                     Console.WriteLine("Goodbye!");
                     return;
                 
@@ -50,6 +55,19 @@ public static class Program
             }
         }
         // "return;"
+
+        bool HasContacts(bool printIfFalse)
+        {
+            if (contactBook.GetAll().Length > 0)
+                return true;
+
+            if (!printIfFalse) return false;
+            
+            Console.WriteLine();
+            Console.WriteLine("No contacts");
+            Console.WriteLine();
+            return false;
+        }
 
         // Responsibility : Selection of type of contact to create
         void PromptCreateContact()
@@ -191,28 +209,127 @@ public static class Program
             }
         }
 
+        IContact EditContact(IContact contactToEdit)
+        {
+            string firstName = contactToEdit.Name.FirstName;
+            string lastName = contactToEdit.Name.LastName;
+            string? middleName = contactToEdit.Name.MiddleName;
+            string email = contactToEdit.Email;
+            Guid id = contactToEdit.Id;
+
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("********** Edit Contact **********");
+                Console.WriteLine($"1. First Name : {firstName}");
+                Console.WriteLine($"2. Last Name  : {lastName}");
+
+                Console.WriteLine(
+                    $"3. Middle Name: " +
+                    $"{middleName ?? "Add Middle Name"}");
+
+                Console.WriteLine($"4. Email      : {email}");
+                Console.WriteLine("5. Save Changes");
+                
+                Console.Write("Select field to edit: ");
+                string? input = Console.ReadLine();
+
+                switch (input?.Trim())
+                {
+                    case "1":
+                        //firstName = PromptName("First Name");
+                        break;
+
+                    case "2":
+                        //lastName = PromptName("Last Name");
+                        break;
+
+                    case "3":
+                        //middleName = PromptOptionalName("Middle Name");
+                        break;
+
+                    case "4":
+                        email = PromptEmail();
+                        break;
+
+                    case "5":
+                        return RebuildContact();
+
+                    default:
+                        Console.WriteLine("Invalid selection.");
+                        break;
+                }
+            }
+            
+            IContact RebuildContact()
+            {
+                FullName fullName = new(
+                    firstName,
+                    lastName,
+                    middleName
+                );
+
+                return contactToEdit switch
+                {
+                    Student => new Student(fullName, email) { Id = id },
+                    Employee => new Employee(fullName, email) { Id = id },
+                    _ => throw new InvalidOperationException()
+                };
+            }
+        }
+
+        #region Contact Removal
+
         void PromptRemoveContact()
+        {
+            while (true)
+            {
+                IContact selectedContact = PromptContactSelection();
+                
+                // TODO : Verify the selection?
+                
+                contactBook.Remove(selectedContact);
+                Console.WriteLine("Contact Selected was Removed.");
+                Console.WriteLine();
+
+                // removed last contact must end loop
+                if (!HasContacts(false))
+                {
+                    Console.WriteLine("Contact List is now Empty.");
+                    Console.WriteLine();
+                    WaitForUser();
+                    return;
+                }
+                
+                Console.Write("Remove Another? (y/n): ");
+                string? input = Console.ReadLine();
+                
+                // FIXME ? : ends loop on anything other than 'y' 
+                if (!string.Equals(input?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
+                    return;
+            }
+        }
+
+        #endregion
+
+        IContact PromptContactSelection()
         {
             IContact[] contacts = DisplayContacts();
 
-            if (contacts.Length == 0)
-                return; // NOTE: display handles showing user no contacts exists
-            
-            Console.Write("Select Contact number to remove: ");
-            string? input = Console.ReadLine();
-
-            if (!int.TryParse(input, out int selection) || selection < 1 || selection > contacts.Length)
+            while (true)
             {
+                Console.Write("Select Contact by number: ");
+                string? input = Console.ReadLine();
+                
+                if (int.TryParse(input, out int selection) 
+                    && selection >= 1 && selection <= contacts.Length)
+                    return contacts[selection - 1];
+                
                 Console.WriteLine("Invalid selection.");
-                return;
             }
-            
-            contactBook.Remove(contacts[selection - 1]);
-            // TODO : Can we verify the selection was actual removed?
-            Console.WriteLine("Contact Selected was Removed.");
-            Console.WriteLine();
         }
 
+        // Responsibility : Display contact list to user
         IContact[] DisplayContacts()
         {
             IContact[] contacts = contactBook.GetAll();
@@ -220,17 +337,10 @@ public static class Program
             Console.WriteLine();
             Console.WriteLine("********** Contact List **********");
 
-            if (contacts.Length == 0)
-            {
-                Console.WriteLine("No contacts found.");
-                Console.WriteLine("********** End Contact List **********");
-                Console.WriteLine();
-                return [];
-            }
-
             for (int i = 0; i < contacts.Length; i++)
             {
-                Console.WriteLine($"{i + 1}. {ContactDisplayText(contacts[i])}");
+                Console.WriteLine(
+                    $"{i + 1}. {ContactDisplayText(contacts[i])}");
             }
             
             Console.WriteLine("********** End Contact List **********");
@@ -253,6 +363,13 @@ public static class Program
                     ? $"{name.FirstName} {name.LastName}"
                     : $"{name.FirstName} {name.MiddleName} {name.LastName}";
             }
+        }
+
+        void WaitForUser()
+        {
+            Console.Write("Press enter to continue...");
+            Console.ReadLine();
+            Console.WriteLine();
         }
     }
 }
