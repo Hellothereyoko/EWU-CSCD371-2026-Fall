@@ -10,23 +10,21 @@ public class JsonDataService(string filePath) : IDataService
         List<ContactDto> dtos = contacts
             .Select(ToDto)
             .ToList();
+        
+        File.WriteAllText(filePath, JsonSerializer.Serialize(dtos));
     }
 
     public IContact[] Load()
     {
         if (!File.Exists(filePath))
-        {
             return [];
-        }
         
         string json = File.ReadAllText(filePath);
         
         List<ContactDto>? dtos = JsonSerializer.Deserialize<List<ContactDto>>(json);
 
         if (dtos == null)
-        {
             return [];
-        }
         
         return dtos
             .Select(ToContact)
