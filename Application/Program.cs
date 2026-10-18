@@ -49,10 +49,8 @@ public static class Program
                     break;
                 
                 case "4":
-                    // TODO : Edit Contact Options
-                    Console.WriteLine("Feature Not Implemented.");
-                    //if (HasContacts(true))
-                    // PromptEditContacts
+                    if (HasContacts(true))
+                        PromptEditContact();
                     break;
                 
                 case "5":
@@ -75,12 +73,13 @@ public static class Program
             if (!notifyIfEmpty) return false;
             
             Console.WriteLine();
-            Console.WriteLine("No contacts");
+            Console.WriteLine("No contacts available");
             Console.WriteLine();
             return false;
         }
 
-        // Responsibility : Selection of type of contact to create
+        #region Contact Creation
+
         void PromptCreateContact()
         {
             Console.WriteLine();
@@ -97,11 +96,11 @@ public static class Program
                 switch (input?.Trim())
                 {
                     case "1":
-                        CreateEmployee();
+                        PromptCreateEmployee();
                         return;
                 
                     case "2":
-                        CreateStudent();
+                        PromptCreateStudent();
                         return;
                 
                     default:
@@ -112,115 +111,193 @@ public static class Program
             }
         }
 
-        void CreateEmployee()
+        void PromptCreateEmployee()
         {
             Employee employeeToAdd = new(
                 PromptFullName(), 
-                PromptEmail()
+                PromptEmail("Please Provide an email for the contact")
             );
             
-            // While loop for editing?
-            if (contactBook.Contains(employeeToAdd))
+            while (contactBook.Contains(employeeToAdd))
             {
                 Console.WriteLine("Contact already exists.");
-                // TODO : EditContact(IContact) here
-                return;
+
+                if (!PromptYesNo("Edit this contact?"))
+                    return;
+                
+                employeeToAdd = (Employee)EditContactMenu(employeeToAdd);
             }
             AddContact(employeeToAdd);
         }
         
-        void CreateStudent()
+        void PromptCreateStudent()
         {
             Student studentToAdd = new(
                 PromptFullName(), 
-                PromptEmail()
+                PromptEmail("Please provide an email for the contact")
             );
 
             // While loop for editing?
-            if (contactBook.Contains(studentToAdd))
+            while (contactBook.Contains(studentToAdd))
             {
                 Console.WriteLine("Contact already exists.");
-                // TODO : EditContact(IContact) here
-                return;
+                
+                if (!PromptYesNo("Edit this contact?"))
+                    return;
+                
+                studentToAdd = (Student)EditContactMenu(studentToAdd);
             }
             AddContact(studentToAdd);
         }
-
-        // Responsibility : Get a FullName from user
-        FullName PromptFullName()
+        
+        void AddContact(IContact contact)
         {
-            string firstName;
-            string lastName;
-            string? middleName;
+            contactBook.Add(contact);
+            dataService.Save(contactBook.GetAll());
+            
+            Console.WriteLine("Contact was Added");
+            Console.WriteLine();
+        }
+
+        #endregion
+
+        #region Contact Display
+
+        IContact PromptContactSelection()
+        {
+            IContact[] contacts = DisplayContacts();
 
             while (true)
             {
-                Console.WriteLine("Please Provide First Name: ");
+                Console.Write("Select Contact by number: ");
                 string? input = Console.ReadLine();
-
-                if (ContactUtilities.ValidateName(input, out string error)
-                    && input is not null)
-                {
-                    firstName = input;
-                    break;
-                }
-                Console.WriteLine(error);
+                
+                if (int.TryParse(input, out int selection) 
+                    && selection >= 1 && selection <= contacts.Length)
+                    return contacts[selection - 1];
+                
+                Console.WriteLine("Invalid selection.");
             }
+        }
+        
+        IContact[] DisplayContacts()
+        {
+            IContact[] contacts = contactBook.GetAll();
+            
+            Console.WriteLine();
+            Console.WriteLine("********** Contact List **********");
 
-            while (true)
+            for (int i = 0; i < contacts.Length; i++)
             {
-                Console.WriteLine("Please Provide Last Name: ");
-                string? input = Console.ReadLine();
-
-                if (ContactUtilities.ValidateName(input, out string error)
-                    && input is not null)
-                {
-                    lastName = input;
-                    break;
-                }
-                Console.WriteLine(error);
-            }
-
-            while (true)
-            {
-                Console.WriteLine("Please Provide Middle Name (Optional): ");
-                string? input = Console.ReadLine();
-
-                if (string.IsNullOrWhiteSpace(input))
-                {
-                    middleName = null;
-                    break;
-                }
-
-                if (ContactUtilities.ValidateName(input, out string error))
-                {
-                    middleName = input;
-                    break;
-                }
-                Console.WriteLine(error);
+                Console.WriteLine(
+                    $"{i + 1}. {DisplayContactInfo(contacts[i])}");
             }
             
-            return new FullName(firstName, lastName, middleName);
+            Console.WriteLine("********** End Contact List **********");
+            Console.WriteLine();
+            
+            return contacts;
+        }
+        
+        string DisplayContactInfo(IContact contact)
+        {
+            return
+                $"{contact.GetType().Name}: " +
+                $"{DisplayFullName(contact.Name)} " +
+                $"({contact.Email})";
+        }
+        
+        string DisplayFullName(FullName name)
+        {
+            return string.IsNullOrWhiteSpace(name.MiddleName)
+                ? $"{name.FirstName} {name.LastName}"
+                : $"{name.FirstName} {name.MiddleName} {name.LastName}";
         }
 
-        // Responsibility : Get a single email input from user
-        string PromptEmail()
+        #endregion
+
+        #region Contact Removal
+
+        void PromptRemoveContact()
         {
             while (true)
             {
-                Console.WriteLine("Please Provide Email: ");
-                string? input = Console.ReadLine();
+                IContact selectedContact = PromptContactSelection();
 
-                if (ContactUtilities.ValidateEmail(input, out string error)
-                    && input is not null)
+                Console.WriteLine();
+                Console.WriteLine("You have selected to remove:");
+                Console.WriteLine(DisplayContactInfo(selectedContact));
+                Console.WriteLine();
+
+                if (!PromptYesNo("Is this correct?"))
                 {
-                    return input;
+                    Console.WriteLine("Removal aborted.");
+                    Console.WriteLine();
+
+                    if (!PromptYesNo("Reselect for removal?"))
+                        return;
+
+                    continue;
                 }
-                Console.WriteLine(error);
+                
+                RemoveContact(selectedContact);
+
+                // removed last contact must end loop
+                if (!HasContacts(false))
+                {
+                    Console.WriteLine("Contact List is now Empty.");
+                    Console.WriteLine();
+                    WaitForUser();
+                    return;
+                }
+                
+                if (!PromptYesNo("Remove another Contact?"))
+                    return;
             }
         }
 
-        IContact EditContact(IContact contactToEdit)
+        void RemoveContact(IContact contact)
+        {
+            contactBook.Remove(contact);
+            dataService.Save(contactBook.GetAll());
+            
+            Console.WriteLine("Contact was Removed.");
+            Console.WriteLine();
+        }
+
+        #endregion
+
+        #region Contact Edits
+
+        void PromptEditContact()
+        {
+            while (true)
+            {
+                IContact selectedContact = PromptContactSelection();
+                
+                IContact updatedContact = EditContactMenu(selectedContact);
+
+                while (!updatedContact.Equals(selectedContact)
+                       && contactBook.Contains(updatedContact))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("A Contact with those details already exists.");
+                    Console.WriteLine();
+
+                    if (!PromptYesNo("Edit this contact?"))
+                        return;
+                    
+                    updatedContact = EditContactMenu(updatedContact);
+                }
+                
+                EditContact(selectedContact, updatedContact);
+                
+                if (!PromptYesNo("Edit another contact?"))
+                    return;
+            }
+        }
+
+        IContact EditContactMenu(IContact contactToEdit)
         {
             string firstName = contactToEdit.Name.FirstName;
             string lastName = contactToEdit.Name.LastName;
@@ -247,19 +324,19 @@ public static class Program
                 switch (input?.Trim())
                 {
                     case "1":
-                        //firstName = PromptName("First Name");
+                        firstName = PromptName("Update First Name to");
                         break;
 
                     case "2":
-                        //lastName = PromptName("Last Name");
+                        lastName = PromptName("Update Last Name to");
                         break;
 
                     case "3":
-                        //middleName = PromptOptionalName("Middle Name");
+                        middleName = PromptOptionalName("Update Middle Name to");
                         break;
 
                     case "4":
-                        email = PromptEmail();
+                        email = PromptEmail("Update Email to");
                         break;
 
                     case "5":
@@ -288,119 +365,75 @@ public static class Program
             }
         }
 
-        #region Contact Removal
-
-        void PromptRemoveContact()
+        void EditContact(IContact contactToRemove, IContact contactToAdd)
         {
-            while (true)
-            {
-                IContact selectedContact = PromptContactSelection();
-
-                Console.WriteLine();
-                Console.WriteLine("You have selected to remove:");
-                Console.WriteLine(DisplayContactInfo(selectedContact));
-                Console.WriteLine();
-
-                if (!PromptYesNo("Is this correct?"))
-                {
-                    Console.WriteLine("Removal aborted.");
-                    Console.WriteLine();
-
-                    if (!PromptYesNo("Reselect for removal?"))
-                        return;
-
-                    continue;
-                }
-                
-                RemoveContact(selectedContact);
-                Console.WriteLine("Contact was Removed.");
-                Console.WriteLine();
-
-                // removed last contact must end loop
-                if (!HasContacts(false))
-                {
-                    Console.WriteLine("Contact List is now Empty.");
-                    Console.WriteLine();
-                    WaitForUser();
-                    return;
-                }
-                
-                if (!PromptYesNo("Remove another Contact?"))
-                    return;
-            }
-        }
-
-        void RemoveContact(IContact contact)
-        {
-            contactBook.Remove(contact);
+            contactBook.Remove(contactToRemove);
+            contactBook.Add(contactToAdd);
             dataService.Save(contactBook.GetAll());
+            
+            Console.WriteLine("Contact was Edited.");
+            Console.WriteLine();
         }
 
         #endregion
+        
+        #region Prompt Helpers
 
-        void AddContact(IContact contact)
+        FullName PromptFullName()
         {
-            contactBook.Add(contact);
-            dataService.Save(contactBook.GetAll());
+            return new FullName(
+                PromptName("Please provide First Name for contact"),
+                PromptName("Please provide Last Name for contact"),
+                PromptOptionalName("Please provide Middle Name for contact")
+            );
         }
-
-        IContact PromptContactSelection()
+        
+        string PromptEmail(string prompt)
         {
-            IContact[] contacts = DisplayContacts();
-
             while (true)
             {
-                Console.Write("Select Contact by number: ");
+                Console.Write($"{prompt}: ");
+                string? input = Console.ReadLine();
+
+                if (ContactUtilities.ValidateEmail(input, out string error)
+                    && input is not null)
+                {
+                    return input;
+                }
+                Console.WriteLine(error);
+            }
+        }
+        
+        string PromptName(string prompt)
+        {
+            while (true)
+            {
+                Console.Write($"{prompt}: ");
+                string? input = Console.ReadLine();
+
+                if (ContactUtilities.ValidateName(input, out string error)
+                    && input is not null)
+                    return input;
+                
+                Console.WriteLine(error);
+            }
+        }
+
+        string? PromptOptionalName(string prompt)
+        {
+            while (true)
+            {
+                Console.Write($"{prompt} (Optional): ");
                 string? input = Console.ReadLine();
                 
-                if (int.TryParse(input, out int selection) 
-                    && selection >= 1 && selection <= contacts.Length)
-                    return contacts[selection - 1];
+                if (string.IsNullOrWhiteSpace(input))
+                    return null;
                 
-                Console.WriteLine("Invalid selection.");
+                if (ContactUtilities.ValidateName(input, out string error))
+                    return input;
+                
+                Console.WriteLine(error);
             }
-        }
-
-        // Responsibility : Display contact list to user
-        IContact[] DisplayContacts()
-        {
-            IContact[] contacts = contactBook.GetAll();
-            
-            Console.WriteLine();
-            Console.WriteLine("********** Contact List **********");
-
-            for (int i = 0; i < contacts.Length; i++)
-            {
-                Console.WriteLine(
-                    $"{i + 1}. {DisplayContactInfo(contacts[i])}");
-            }
-            
-            Console.WriteLine("********** End Contact List **********");
-            Console.WriteLine();
-            
-            return contacts;
-        }
-        
-        string DisplayContactInfo(IContact contact)
-        {
-            return
-                $"{contact.GetType().Name}: " +
-                $"{DisplayFullName(contact.Name)}: " +
-                $"({contact.Email})";
-        }
-        
-        string DisplayFullName(FullName name)
-        {
-            return string.IsNullOrWhiteSpace(name.MiddleName)
-                ? $"{name.FirstName} {name.LastName}"
-                : $"{name.FirstName} {name.MiddleName} {name.LastName}";
-        }
-
-        void WaitForUser()
-        {
-            Console.Write("Press enter to continue...");
-            Console.ReadLine();
-            Console.WriteLine();
         }
 
         bool PromptYesNo(string prompt)
@@ -420,6 +453,15 @@ public static class Program
 
                 Console.WriteLine("Please enter 'y' or 'n'");
             }
+        }
+
+        #endregion
+
+        void WaitForUser()
+        {
+            Console.Write("Press enter to continue...");
+            Console.ReadLine();
+            Console.WriteLine();
         }
     }
 }
