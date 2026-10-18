@@ -1,4 +1,5 @@
 ﻿using Contacts;
+using Persistence;
 
 namespace Application;
 
@@ -6,9 +7,20 @@ public static class Program
 {
     public static void Main()
     {
-        // TODO : Implement Persistence
-        ContactBook contactBook = new();
+        // TODO : Double check Persistence
+        string pathToSave = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "ContactBook.json");
         
+        ContactBook contactBook = new();
+
+        JsonDataService dataService = new(pathToSave);
+
+        foreach (IContact savedContact in dataService.Load())
+        {
+            contactBook.Add(savedContact);
+        }
+
         while (true)
         {
             Console.WriteLine("********** Main Menu **********");
@@ -47,6 +59,7 @@ public static class Program
                 
                 case "5":
                     // TODO : (redundant) Persistence save here
+                    dataService.Save(contactBook.GetAll());
                     Console.WriteLine();
                     Console.WriteLine("Goodbye!");
                     return;
@@ -58,12 +71,12 @@ public static class Program
         }
         // "return;"
 
-        bool HasContacts(bool printIfFalse)
+        bool HasContacts(bool notifyIfEmpty)
         {
             if (contactBook.GetAll().Length > 0)
                 return true;
 
-            if (!printIfFalse) return false;
+            if (!notifyIfEmpty) return false;
             
             Console.WriteLine();
             Console.WriteLine("No contacts");
@@ -315,6 +328,7 @@ public static class Program
         {
             contactBook.Remove(contact);
             // TODO : Persistence Save
+            dataService.Save(contactBook.GetAll());
         }
 
         #endregion
@@ -323,6 +337,7 @@ public static class Program
         {
             contactBook.Add(contact);
             // TODO : Persistence Save
+            dataService.Save(contactBook.GetAll());
         }
 
         IContact PromptContactSelection()
