@@ -7,7 +7,6 @@ public static class Program
 {
     public static void Main()
     {
-        // TODO : Double check Persistence
         string pathToSave = Path.Combine(
             Directory.GetCurrentDirectory(),
             "ContactBook.json");
@@ -16,11 +15,10 @@ public static class Program
 
         JsonDataService dataService = new(pathToSave);
 
-        foreach (IContact savedContact in dataService.Load())
-        {
+        foreach (IContact savedContact in dataService.Load()) 
             contactBook.Add(savedContact);
-        }
 
+        // Main Menu
         while (true)
         {
             Console.WriteLine("********** Main Menu **********");
@@ -58,7 +56,6 @@ public static class Program
                     break;
                 
                 case "5":
-                    // TODO : (redundant) Persistence save here
                     dataService.Save(contactBook.GetAll());
                     Console.WriteLine();
                     Console.WriteLine("Goodbye!");
@@ -69,7 +66,6 @@ public static class Program
                     break;
             }
         }
-        // "return;"
 
         bool HasContacts(bool notifyIfEmpty)
         {
@@ -299,11 +295,25 @@ public static class Program
             while (true)
             {
                 IContact selectedContact = PromptContactSelection();
-                
-                // TODO : Verify the selection?
+
+                Console.WriteLine();
+                Console.WriteLine("You have selected to remove:");
+                Console.WriteLine(DisplayContactInfo(selectedContact));
+                Console.WriteLine();
+
+                if (!PromptYesNo("Is this correct?"))
+                {
+                    Console.WriteLine("Removal aborted.");
+                    Console.WriteLine();
+
+                    if (!PromptYesNo("Reselect for removal?"))
+                        return;
+
+                    continue;
+                }
                 
                 RemoveContact(selectedContact);
-                Console.WriteLine("Contact Selected was Removed.");
+                Console.WriteLine("Contact was Removed.");
                 Console.WriteLine();
 
                 // removed last contact must end loop
@@ -315,11 +325,7 @@ public static class Program
                     return;
                 }
                 
-                Console.Write("Remove Another? (y/n): ");
-                string? input = Console.ReadLine();
-                
-                // FIXME ? : ends loop on anything other than 'y' 
-                if (!string.Equals(input?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
+                if (!PromptYesNo("Remove another Contact?"))
                     return;
             }
         }
@@ -327,7 +333,6 @@ public static class Program
         void RemoveContact(IContact contact)
         {
             contactBook.Remove(contact);
-            // TODO : Persistence Save
             dataService.Save(contactBook.GetAll());
         }
 
@@ -336,7 +341,6 @@ public static class Program
         void AddContact(IContact contact)
         {
             contactBook.Add(contact);
-            // TODO : Persistence Save
             dataService.Save(contactBook.GetAll());
         }
 
@@ -368,29 +372,28 @@ public static class Program
             for (int i = 0; i < contacts.Length; i++)
             {
                 Console.WriteLine(
-                    $"{i + 1}. {ContactDisplayText(contacts[i])}");
+                    $"{i + 1}. {DisplayContactInfo(contacts[i])}");
             }
             
             Console.WriteLine("********** End Contact List **********");
             Console.WriteLine();
             
             return contacts;
-            // you happy JetBrains? I made an actual return line here lmao
-
-            string ContactDisplayText(IContact contact)
-            {
-                return
-                    $"{contact.GetType().Name}: " +
-                    $"{FullName(contact.Name)}: " +
-                    $"({contact.Email})";
-            }
-
-            string FullName(FullName name)
-            {
-                return string.IsNullOrWhiteSpace(name.MiddleName)
-                    ? $"{name.FirstName} {name.LastName}"
-                    : $"{name.FirstName} {name.MiddleName} {name.LastName}";
-            }
+        }
+        
+        string DisplayContactInfo(IContact contact)
+        {
+            return
+                $"{contact.GetType().Name}: " +
+                $"{DisplayFullName(contact.Name)}: " +
+                $"({contact.Email})";
+        }
+        
+        string DisplayFullName(FullName name)
+        {
+            return string.IsNullOrWhiteSpace(name.MiddleName)
+                ? $"{name.FirstName} {name.LastName}"
+                : $"{name.FirstName} {name.MiddleName} {name.LastName}";
         }
 
         void WaitForUser()
@@ -398,6 +401,25 @@ public static class Program
             Console.Write("Press enter to continue...");
             Console.ReadLine();
             Console.WriteLine();
+        }
+
+        bool PromptYesNo(string prompt)
+        {
+            while (true)
+            {
+                Console.Write($"{prompt} (y/n): ");
+                string? input = Console.ReadLine();
+                
+                if (string.Equals(input?.Trim(), "y",
+                        StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                if (string.Equals(input?.Trim(), "n",
+                        StringComparison.OrdinalIgnoreCase))
+                    return false;
+
+                Console.WriteLine("Please enter 'y' or 'n'");
+            }
         }
     }
 }
