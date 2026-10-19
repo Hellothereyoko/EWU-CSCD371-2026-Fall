@@ -13,6 +13,10 @@ public class ContactBookTests
     private static Student CreateStudent() => new(TestName, TestContactEmails);
     private static Employee CreateEmployee() => new(TestName, TestContactEmails);
     
+
+    /// <summary>
+    /// Tests that adding a student to the contact book successfully stores the student.
+    /// </summary>
     [TestMethod]
     public void ContactBook_AddStudent_AddsStudent()
     {
@@ -24,6 +28,10 @@ public class ContactBookTests
         Assert.IsTrue(book.Contains(student));
     }
     
+
+    /// <summary>
+    /// Tests that the contact book correctly identifies a student with equal data as contained, even if it's a different reference.
+    /// </summary>
     [TestMethod]
     public void Contains_EqualStudents_ReturnsTrue()
     {
@@ -44,6 +52,10 @@ public class ContactBookTests
         Assert.IsTrue(book.Contains(lookup));
     }
     
+
+    /// <summary>
+    /// Tests that adding a student and an employee with equal data to the contact book successfully stores both contacts, demonstrating that the contact book can handle different types with equal data.
+    /// </summary>
     [TestMethod]
     public void ContactBookWithStudent_AddingEqualDataEmployee_StoresBothContacts()
     {
@@ -60,6 +72,10 @@ public class ContactBookTests
         Assert.HasCount(2, book.GetAll());
     }
     
+
+    /// <summary>
+    /// Tests that the contact book does not consider an employee with equal data to a contained student as equal, ensuring that the contact book maintains type distinction even when data is identical.
+    /// </summary>
     [TestMethod]
     public void ContactBookWithStudent_ContainsWithEqualDataEmployee_ReturnsFalse()
     {
@@ -76,6 +92,9 @@ public class ContactBookTests
     }
 
 
+    /// <summary>
+    /// Tests that removing a student from the contact book successfully removes the student, and that the contact book no longer contains the student after removal.
+    /// </summary>
     [TestMethod]
     public void ContactBook_RemoveStudent_RemovesStudent()
     {
