@@ -74,4 +74,20 @@ public class ContactBookTests
         // collection behavior should not find an employee of equal data to a contained student as equal
         Assert.IsFalse(book.Contains(employee));
     }
+
+
+    [TestMethod]
+    public void ContactBook_RemoveStudent_RemovesStudent()
+    {
+        ContactBook book = new();
+    
+        Student student = CreateStudent();
+        book.Add(student);
+        
+        Assert.IsTrue(book.Contains(student));
+        
+        book.Remove(student);
+        
+        Assert.IsFalse(book.Contains(student));
+    }
 }
