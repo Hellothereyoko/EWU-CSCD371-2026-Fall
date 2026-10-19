@@ -1,10 +1,6 @@
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Contacts.Tests;
-
-
-
 
 ///summary
 /// This is a test class for the IContact interface in the Contacts application.
@@ -12,31 +8,51 @@ namespace Contacts.Tests;
 [TestClass]
 public class IContactTests
 {
-    /// <summary>
-    /// This test method verifies that the IContact interface has a FirstName property. It checks if the property exists and is of type string.
-    /// </summary>
+    // shared data and helpers to prevent accidental data mismatch from influencing test results
+    private static readonly FullName TestName = new("John", "Smith");
+    private const string TestEmail = "email";
+    
+    private static Student CreateStudent() => new(TestName, TestEmail);
+    private static Employee CreateEmployee() => new(TestName, TestEmail);
+    
+    // Req: Two contacts with the same data are equal even though they have different ID's
     [TestMethod]
-    public void IContact_ShouldHaveFirstNameProperty(){Assert.IsTrue(typeof(IContact).GetProperty("FirstName") != null);}
-
-
-    /// <summary>
-    /// This test method verifies that the IContact interface can have a MiddleName property. It checks if the property exists and is of type string.
-    /// </summary>
+    public void Students_WithSameData_AreEqual()
+    {
+        Student student1 = CreateStudent();
+        Student student2 = CreateStudent();
+        
+        Assert.AreEqual(student1, student2);
+    }
+    
     [TestMethod]
-    public void IContact_CanHaveMiddleNameProperty(){Assert.IsTrue(typeof(IContact).GetProperty("MiddleName") != null);}
-
-
-    /// <summary>
-    /// This test method verifies that the IContact interface has a LastName property. It checks if the property exists and is of type string.
-    /// </summary>
+    public void Students_WithSameData_HaveDifferentIds()
+    {
+        Student student1 = CreateStudent();
+        Student student2 = CreateStudent();
+        
+        Assert.AreNotEqual(student1.Id, student2.Id);
+    }
+    
+    // Req: Equal contacts must produce the same HashCode for HashSet to reliably determine duplicates
     [TestMethod]
-    public void IContact_ShouldHaveLastNameProperty(){Assert.IsTrue(typeof(IContact).GetProperty("LastName") != null);}
+    public void Students_WithSameData_HaveSameHashCode()
+    {
+        Student student1 = CreateStudent();
+        Student student2 = CreateStudent();
 
-
-
-    /// <summary>
-    /// This test method verifies that the IContact interface has a RecordType property. It checks if the property exists and is of type string.
-    /// </summary>
+        Assert.AreEqual(
+            student1.GetHashCode(),
+            student2.GetHashCode());
+    }
+    
+    // REQ: a student and an employee with otherwise identical data are not equal
     [TestMethod]
-    public void IContact_ShouldHaveRecordTypeProperty(){}
+    public void StudentAndEmployee_WithSameData_AreNotEqual()
+    {
+        IContact student = CreateStudent();
+        IContact employee = CreateEmployee();
+
+        Assert.AreNotEqual(student, employee);
+    }
 }
