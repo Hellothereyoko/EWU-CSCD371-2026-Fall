@@ -18,7 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="**/*Tests.cs" />
+    <Compile Include="ContactBookTests.cs" />
+    <Compile Include="ContactEmailTests.cs" />
+    <Compile Include="ContactUtilitiesTests.cs" />
+    <Compile Include="ContactTests.cs" />
+    <Compile Include="FullNameTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
