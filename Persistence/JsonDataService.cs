@@ -39,28 +39,33 @@ public class JsonDataService(string filePath) : IDataService
             contact.Name.FirstName,
             contact.Name.LastName,
             contact.Name.MiddleName,
-            contact.Email
+            contact.Emails.Emails.ToArray()
         );
     }
     
     private static IContact ToContact(ContactDto dto)
     {
+        // create a full name record
         FullName fullName = new(
             dto.FirstName,
             dto.LastName,
             dto.MiddleName
         );
 
+        // create an email record
+        ContactEmails emails = new(dto.Emails);
+
+        // return IContact created with those records according to type
         return dto.ContactType switch
         {
             nameof(Student) => new Student(
                 fullName,
-                dto.Email
+                emails
             ) { Id = dto.Id },
 
             nameof(Employee) => new Employee(
                 fullName,
-                dto.Email
+                emails
             ) { Id = dto.Id },
 
             _ => throw new InvalidOperationException(
