@@ -7,5 +7,5 @@ public record ContactDto
     string FirstName,
     string LastName,
     string? MiddleName,
-    string Email
+    string[] Emails
 );
