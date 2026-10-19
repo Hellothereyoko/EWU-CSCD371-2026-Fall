@@ -115,7 +115,7 @@ public static class Program
         {
             Employee employeeToAdd = new(
                 PromptFullName(), 
-                PromptEmail("Please Provide an email for the contact")
+                PromptEmails("Please Provide an email for the contact")
             );
             
             while (contactBook.Contains(employeeToAdd))
@@ -134,7 +134,7 @@ public static class Program
         {
             Student studentToAdd = new(
                 PromptFullName(), 
-                PromptEmail("Please provide an email for the contact")
+                PromptEmails("Please provide an email for the contact")
             );
 
             // While loop for editing?
@@ -204,7 +204,7 @@ public static class Program
             return
                 $"{contact.GetType().Name}: " +
                 $"{DisplayFullName(contact.Name)} " +
-                $"({contact.Email})";
+                $"({DisplayEmails(contact.Emails)})";
         }
         
         string DisplayFullName(FullName name)
@@ -212,6 +212,11 @@ public static class Program
             return string.IsNullOrWhiteSpace(name.MiddleName)
                 ? $"{name.FirstName} {name.LastName}"
                 : $"{name.FirstName} {name.MiddleName} {name.LastName}";
+        }
+
+        string DisplayEmails(ContactEmails emails)
+        {
+            return string.Join(", ", emails.Emails);
         }
 
         #endregion
@@ -302,7 +307,7 @@ public static class Program
             string firstName = contactToEdit.Name.FirstName;
             string lastName = contactToEdit.Name.LastName;
             string? middleName = contactToEdit.Name.MiddleName;
-            string email = contactToEdit.Email;
+            ContactEmails emails = contactToEdit.Emails;
             Guid id = contactToEdit.Id;
 
             while (true)
@@ -313,9 +318,9 @@ public static class Program
                 Console.WriteLine($"2. Last Name : {lastName}");
 
                 Console.WriteLine($"3. Middle Name : " +
-                                  $"{middleName ?? "Add A Middle Name"}");
+                                  $"{middleName ?? "(none)"}");
 
-                Console.WriteLine($"4. Email : {email}");
+                Console.WriteLine($"4. Email(s) : {DisplayEmails(emails)}");
                 Console.WriteLine("5. Save Changes");
                 
                 Console.Write("Select field to edit: ");
@@ -336,7 +341,7 @@ public static class Program
                         break;
 
                     case "4":
-                        email = PromptEmail("Update Email to");
+                        emails = EditEmailsMenu(emails);
                         break;
 
                     case "5":
@@ -358,8 +363,8 @@ public static class Program
 
                 return contactToEdit switch
                 {
-                    Student => new Student(fullName, email) { Id = id },
-                    Employee => new Employee(fullName, email) { Id = id },
+                    Student => new Student(fullName, emails) { Id = id },
+                    Employee => new Employee(fullName, emails) { Id = id },
                     _ => throw new InvalidOperationException()
                 };
             }
@@ -376,6 +381,116 @@ public static class Program
         }
 
         #endregion
+
+        #region Edit Emails
+
+        ContactEmails EditEmailsMenu(ContactEmails emails)
+        {
+            List<string> editableEmails = emails.Emails.ToList();
+
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("********** Edit Emails **********");
+                Console.WriteLine("1. Add Email");
+                Console.WriteLine("2. Remove Email");
+                Console.WriteLine("3. Edit Email");
+                Console.WriteLine("4. Return");
+                Console.WriteLine();
+
+                Console.Write("Select option: ");
+                string? input = Console.ReadLine();
+
+                switch (input?.Trim())
+                {
+                    case "1":
+                        AddEmail(editableEmails);
+                        break;
+                    
+                    case "2":
+                        RemoveEmail(editableEmails);
+                        break;
+                    
+                    case "3":
+                        EditEmail(editableEmails);
+                        break;
+                    
+                    case "4":
+                        return new ContactEmails(editableEmails);
+                    
+                    default:
+                        Console.WriteLine("Invalid selection.");
+                        break;
+                }
+            }
+        }
+
+        void AddEmail(List<string> currentEmailList)
+        {
+            string email = PromptSingleEmail("Please Provide Email");
+
+            if (currentEmailList.Contains(email))
+            {
+                Console.WriteLine("Email already exists.");
+                return;
+            }
+            currentEmailList.Add(email);
+        }
+
+        void RemoveEmail(List<string> currentEmailList)
+        {
+            if (currentEmailList.Count <= 1)
+            {
+                Console.WriteLine("A Contact must maintain at least one email, " +
+                        "try edit email if this email is no longer wanted");
+                return;
+            }
+            int selectedIndex = PromptEmailSelection(currentEmailList);
+            
+            currentEmailList.RemoveAt(selectedIndex);
+        }
+
+        void EditEmail(List<string> currentEmailList)
+        {
+            int selectedIndex = PromptEmailSelection(currentEmailList);
+            
+            string updatedEmail = PromptSingleEmail("Update Email to");
+
+            if (currentEmailList.Contains(updatedEmail))
+            {
+                Console.WriteLine("Email already exists.");
+                return;
+            }
+            currentEmailList[selectedIndex] = updatedEmail;
+        }
+
+        int PromptEmailSelection(IReadOnlyList<string> emails)
+        {
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("********** Email List **********");
+
+                for (int i = 0; i < emails.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {emails[i]}");
+                }
+                
+                Console.WriteLine();
+                Console.Write("Select Email by Number: ");
+                string? input = Console.ReadLine();
+
+                if (int.TryParse(input, out int selection)
+                    && selection >= 1
+                    && selection <= emails.Count)
+                    
+                    return selection - 1;
+                
+                Console.WriteLine("Invalid selection.");
+            }
+        }
+
+        #endregion
         
         #region Prompt Helpers
 
@@ -388,22 +503,34 @@ public static class Program
             );
         }
         
-        string PromptEmail(string prompt)
+        ContactEmails PromptEmails(string prompt)
+        {
+            List<string> emails = [];
+            
+            emails.Add(PromptSingleEmail(prompt));
+            
+            while (PromptYesNo("Add another email?"))
+            {
+                emails.Add(PromptSingleEmail("enter email here:"));
+            }
+            return new ContactEmails(emails);
+        }
+
+        string PromptSingleEmail(string prompt)
         {
             while (true)
             {
                 Console.Write($"{prompt}: ");
                 string? input = Console.ReadLine();
-
+                
                 if (ContactUtilities.ValidateEmail(input, out string error)
                     && input is not null)
-                {
                     return input;
-                }
+                
                 Console.WriteLine(error);
             }
         }
-        
+
         string PromptName(string prompt)
         {
             while (true)
