@@ -3,8 +3,14 @@
 namespace Persistence.Tests;
 
 [TestClass]
-public sealed class DataServiceTests
+public class DataServiceTests
 {
+    private static readonly FullName TestName = new("John", "Smith");
+    private static readonly ContactEmails TestContactEmails = new(["test@email"]);
+    
+    private static Student CreateStudent() => new(TestName, TestContactEmails);
+    private static Employee CreateEmployee() => new(TestName, TestContactEmails);
+    
     [TestMethod]
     public void SaveThenLoad_ReturnsSavedContacts()
     {
@@ -13,13 +19,8 @@ public sealed class DataServiceTests
 
         IContact[] createdList =
         [
-            new Student(
-                new FullName("John", "Smith"),
-                "test@email"),
-
-            new Employee(
-                new FullName("John", "Smith"),
-                "test@email")
+            CreateStudent(),
+            CreateEmployee()
         ];
         
         // act
@@ -38,9 +39,7 @@ public sealed class DataServiceTests
         
         IContact[] originalList =
         [
-            new Student(
-                new FullName("John", "Smith"),
-                "test@email"),
+            CreateStudent()
         ];
         
         service.Save(originalList);
@@ -48,13 +47,8 @@ public sealed class DataServiceTests
         // act
         IContact[] overwriteList =
         [
-            new Student(
-                new FullName("New", "Name"),
-                "test@email"),
-            
-            new Employee(
-                new FullName("John", "Smith"),
-                "test@email")
+            CreateStudent(),
+            CreateEmployee()
         ];
         
         service.Save(overwriteList);
