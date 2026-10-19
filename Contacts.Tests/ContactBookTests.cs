@@ -8,15 +8,16 @@ public class ContactBookTests
     // shared data and helpers to prevent accidental data mismatch from influencing test results
     private static readonly FullName TestName = new("John", "Smith");
     private const string TestEmail = "email";
+    private static readonly ContactEmails TestContactEmails = new([TestEmail]);
     
-    private static Student CreateStudent() => new(TestName, TestEmail);
-    private static Employee CreateEmployee() => new(TestName, TestEmail);
+    private static Student CreateStudent() => new(TestName, TestContactEmails);
+    private static Employee CreateEmployee() => new(TestName, TestContactEmails);
     
     [TestMethod]
     public void ContactBook_AddStudent_AddsStudent()
     {
         ContactBook book = new();
-
+    
         Student student = CreateStudent();
         book.Add(student);
         
