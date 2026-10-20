@@ -9,7 +9,6 @@ public class ContactTests
     private static readonly FullName TestName = new("John", "Smith");
     private const string TestEmail = "email";
     private static readonly ContactEmails TestContactEmails = new([TestEmail]);
-    private const string TestEmail2 = "email2";
     private static readonly ContactId TestId = new('T', 1);
     
     private static Student CreateStudent() => new(TestName, TestContactEmails) { Id = TestId };
