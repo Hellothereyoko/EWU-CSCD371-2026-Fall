@@ -2,7 +2,6 @@ namespace Contacts;
 
 public interface IContact
 {
-    char TypePrefix { get; }
     ContactId Id { get; }
     FullName Name { get; }
     ContactEmails Emails { get; }
@@ -44,9 +43,6 @@ public record ContactEmails(IReadOnlyList<string> Emails)
 
 public abstract record BaseContact(FullName Name, ContactEmails Emails) : IContact
 {
-    // prefix for an ID is unique to each type, this allows them to define it
-
-    public abstract char TypePrefix { get; }
     public required ContactId Id { get; init; }
 
     // equals definition is shared between derivers
@@ -65,12 +61,10 @@ public sealed record Student(FullName Name, ContactEmails Emails) : BaseContact(
 {
     // unique to Student
     public const char Prefix = 'S';
-    public override char TypePrefix => Prefix;
 }
 
 public sealed record Employee(FullName Name, ContactEmails Emails) : BaseContact(Name, Emails)
 {
     // unique to Employee
     public const char Prefix = 'E';
-    public override char TypePrefix => Prefix;
 }
