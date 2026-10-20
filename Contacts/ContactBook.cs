@@ -13,9 +13,10 @@ public class ContactBook
 
 
     /// <summary>
-    /// This method adds a new contact to the contact book. If the contact already exists in the collection, it will not be added again, ensuring that each contact is unique.
+    /// Adds a contact to the contact book and updates the next ID for its type.
+    /// Equal contacts are not added more than once.
     /// </summary>
-    /// <param name="item"></param>
+    /// <param name="item">The contact to add.</param>
     public void Add(IContact item)
     {
         Entities.Add(item);
@@ -31,9 +32,9 @@ public class ContactBook
 
 
     /// <summary>
-    /// This method removes a contact from the contact book. If the contact does not exist in the collection, no action is taken.
+    /// Removes a contact from the contact book.
     /// </summary>
-    /// <param name="item"></param>
+    /// <param name="item">The contact to remove.</param>
     public void Remove(IContact item)
     {
         Entities.Remove(item);
@@ -41,10 +42,10 @@ public class ContactBook
 
 
     /// <summary>
-    /// This method checks if a specific contact exists in the contact book. It returns true if the contact is found, and false otherwise.
+    /// Determines whether the contact book contains a contact equal to the specified contact.
     /// </summary>
-    /// <param name="item"></param>
-    /// <returns></returns>
+    /// <param name="item">The contact to locate.</param>
+    /// <returns><see langword="true"/> if an equal contact is present; otherwise, <see langword="false"/>.</returns>
     public bool Contains(IContact item)
     {
         return Entities.Contains(item);
@@ -52,20 +53,19 @@ public class ContactBook
 
 
     /// <summary>
-    /// This method retrieves all contacts currently stored in the contact book. It returns an array of IContact objects representing the contacts.
+    /// Gets a snapshot of all contacts currently stored in the contact book.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>An array containing the contacts in the contact book.</returns>
     public IContact[] GetAll() => Entities.ToArray();
     
     // dictionary keying a contact Type (Student, Employee, etc.) to its ID values
     private readonly Dictionary<string, int> _nextIds = [];
 
     /// <summary>
-    /// Returns the next int for an ID of the given contactType
-    /// Prefer to use nameOf when calling
+    /// Gets the next ID number for the specified contact type.
     /// </summary>
-    /// <param name="contactType"></param>
-    /// <returns></returns>
+    /// <param name="contactType">The contact type whose next ID is requested.</param>
+    /// <returns>The next ID number, or <c>1</c> if no contact of that type has been added.</returns>
     public int GetNextId(string contactType)
     {
         // returns value or if prefix not exist, default 1

@@ -5,6 +5,9 @@ namespace Application;
 
 public static class Program
 {
+    /// <summary>
+    /// Runs the contact book command-line application.
+    /// </summary>
     public static void Main()
     {
         string pathToSave = Path.Combine(

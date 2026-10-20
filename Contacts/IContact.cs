@@ -9,6 +9,10 @@ public interface IContact
 
 public record ContactId(char TypePrefix, int Number)
 {
+    /// <summary>
+    /// Returns the contact ID as its type prefix followed by its number.
+    /// </summary>
+    /// <returns>The formatted contact ID.</returns>
     public override string ToString() => $"{TypePrefix}{Number}";
 }
 
@@ -20,6 +24,12 @@ public record FullName(
 
 public record ContactEmails(IReadOnlyList<string> Emails)
 {
+    /// <summary>
+    /// Determines whether this instance has the same emails as another instance,
+    /// regardless of their order.
+    /// </summary>
+    /// <param name="other">The email collection to compare with this instance.</param>
+    /// <returns><see langword="true"/> if both instances contain the same emails; otherwise, <see langword="false"/>.</returns>
     public virtual bool Equals(ContactEmails? other)
     {
         // the same emails in any order should equate equal
@@ -29,6 +39,10 @@ public record ContactEmails(IReadOnlyList<string> Emails)
                     other.Emails.OrderBy(email => email)); 
     }
     
+    /// <summary>
+    /// Returns a hash code based on the emails, independent of their order.
+    /// </summary>
+    /// <returns>A hash code for this email collection.</returns>
     public override int GetHashCode()
     {
         // note: the same emails in different order should return same hashcode
@@ -46,6 +60,11 @@ public abstract record BaseContact(FullName Name, ContactEmails Emails) : IConta
     public required ContactId Id { get; init; }
 
     // equals definition is shared between derivers
+    /// <summary>
+    /// Determines whether this contact has the same name and emails as another contact.
+    /// </summary>
+    /// <param name="other">The contact to compare with this instance.</param>
+    /// <returns><see langword="true"/> if both contacts have the same name and emails; otherwise, <see langword="false"/>.</returns>
     public virtual bool Equals(BaseContact? other)
     {
         return other is not null
@@ -54,6 +73,10 @@ public abstract record BaseContact(FullName Name, ContactEmails Emails) : IConta
     }
     
     // hashcode definition is shared between derivers
+    /// <summary>
+    /// Returns a hash code based on the contact's name and emails.
+    /// </summary>
+    /// <returns>A hash code for this contact.</returns>
     public override int GetHashCode() => HashCode.Combine(Name, Emails);
 }
 

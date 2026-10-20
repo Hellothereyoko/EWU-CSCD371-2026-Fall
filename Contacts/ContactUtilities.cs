@@ -3,13 +3,12 @@
 public static class ContactUtilities
 {
     /// <summary>
-    /// Utility method used for validating a name entry for a contact.
-    /// Returns true if string meets standard for proper name, else
-    /// errorMessage will contain what is wrong
+    /// Validates a contact name. Letters are allowed, as are apostrophes and
+    /// hyphens when they appear between letters.
     /// </summary>
-    /// <param name="name"></param>
-    /// <param name="errorMessage"></param>
-    /// <returns></returns>
+    /// <param name="name">The name to validate.</param>
+    /// <param name="errorMessage">When validation fails, receives the reason; otherwise, an empty string.</param>
+    /// <returns><see langword="true"/> if the name is valid; otherwise, <see langword="false"/>.</returns>
     public static bool ValidateName(string? name, out string errorMessage)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -50,13 +49,11 @@ public static class ContactUtilities
     }
 
     /// <summary>
-    /// Utility method for validating a string meets email classifications.
-    /// Return true if the passed string is a valid email, else
-    /// errorMessage contains what is determined invalid
+    /// Validates an email address using the application's email format rules.
     /// </summary>
-    /// <param name="email"></param>
-    /// <param name="errorMessage"></param>
-    /// <returns></returns>
+    /// <param name="email">The email address to validate.</param>
+    /// <param name="errorMessage">When validation fails, receives the reason; otherwise, an empty string.</param>
+    /// <returns><see langword="true"/> if the email address is valid; otherwise, <see langword="false"/>.</returns>
     public static bool ValidateEmail(string? email, out string errorMessage)
     {
         if (string.IsNullOrWhiteSpace(email))
