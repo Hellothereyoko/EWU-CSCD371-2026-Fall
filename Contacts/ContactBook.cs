@@ -57,8 +57,15 @@ public class ContactBook
     /// <returns></returns>
     public IContact[] GetAll() => Entities.ToArray();
     
+    // dictionary keying a contact Type (Student, Employee, etc.) to its ID values
     private readonly Dictionary<string, int> _nextIds = [];
 
+    /// <summary>
+    /// Returns the next int for an ID of the given contactType
+    /// Prefer to use nameOf when calling
+    /// </summary>
+    /// <param name="contactType"></param>
+    /// <returns></returns>
     public int GetNextId(string contactType)
     {
         // returns value or if prefix not exist, default 1
