@@ -113,14 +113,14 @@ public static class Program
 
         void PromptCreateEmployee()
         {
-            ContactId id = new(Employee.Prefix, contactBook.GetNextId(Employee.Prefix));
+            int nextNumber = contactBook.GetNextId(nameof(Employee));
             
             Employee employeeToAdd = new(
                 PromptFullName(),
                 PromptEmails("Please Provide an email for the contact")
             )
             {
-                Id = id
+                Id = new ContactId(Employee.Prefix, nextNumber)
             };
             
             while (contactBook.Contains(employeeToAdd))
@@ -137,14 +137,14 @@ public static class Program
         
         void PromptCreateStudent()
         {
-            ContactId id = new(Student.Prefix, contactBook.GetNextId(Student.Prefix));
+            int nextIdNumber = contactBook.GetNextId(nameof(Student));
 
             Student studentToAdd = new(
                 PromptFullName(),
                 PromptEmails("Please provide an email for the contact")
             )
             {
-                Id = id
+                Id = new ContactId(Student.Prefix, nextIdNumber)
             };
 
             // While loop for editing?
