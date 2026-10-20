@@ -7,11 +7,11 @@ public class ContactBookTests
 {
     // shared data and helpers to prevent accidental data mismatch from influencing test results
     private static readonly FullName TestName = new("John", "Smith");
-    private const string TestEmail = "email";
-    private static readonly ContactEmails TestContactEmails = new([TestEmail]);
+    private static readonly ContactEmails TestContactEmails = new(["test@email"]);
+    private static readonly ContactId TestId = new('T', 1);
     
-    private static Student CreateStudent() => new(TestName, TestContactEmails);
-    private static Employee CreateEmployee() => new(TestName, TestContactEmails);
+    private static Student CreateStudent() => new(TestName, TestContactEmails) { Id = TestId };
+    private static Employee CreateEmployee() => new(TestName, TestContactEmails) { Id = TestId };
     
 
     /// <summary>

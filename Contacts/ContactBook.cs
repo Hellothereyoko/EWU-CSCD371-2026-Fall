@@ -19,6 +19,14 @@ public class ContactBook
     public void Add(IContact item)
     {
         Entities.Add(item);
+
+        string contactType = item.GetType().Name;
+        int itemIdNumber = item.Id.Number;
+        
+        // if we have no value for this prefix, make one.
+        // or the value for this prefix is lower than this items id + 1
+        if (!_nextIds.TryGetValue(contactType, out int currentNext) || currentNext <= itemIdNumber)
+            _nextIds[contactType] = itemIdNumber + 1;
     }
 
 
@@ -48,6 +56,23 @@ public class ContactBook
     /// </summary>
     /// <returns></returns>
     public IContact[] GetAll() => Entities.ToArray();
+    
+    // dictionary keying a contact Type (Student, Employee, etc.) to its ID values
+    private readonly Dictionary<string, int> _nextIds = [];
+
+    /// <summary>
+    /// Returns the next int for an ID of the given contactType
+    /// Prefer to use nameOf when calling
+    /// </summary>
+    /// <param name="contactType"></param>
+    /// <returns></returns>
+    public int GetNextId(string contactType)
+    {
+        // returns value or if prefix not exist, default 1
+        // NOTE: GetNextID does not mutate the dictionary, only actually adding the IContact item does
+        // this just allows program to see what the next value for a prefix should be
+        return _nextIds.GetValueOrDefault(contactType, 1);
+    }
 }
 
 
