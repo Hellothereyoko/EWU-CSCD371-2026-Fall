@@ -9,7 +9,7 @@ public interface IContact
 
 public record ContactId(char TypePrefix, int Number)
 {
-    public override string ToString() => $"{TypePrefix}:{Number}";
+    public override string ToString() => $"{TypePrefix}{Number}";
 }
 
 public record FullName(

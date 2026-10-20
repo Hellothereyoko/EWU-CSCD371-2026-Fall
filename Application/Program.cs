@@ -213,6 +213,7 @@ public static class Program
         {
             return
                 $"{contact.GetType().Name}: " +
+                $"{contact.Id}, " +
                 $"{DisplayFullName(contact.Name)} " +
                 $"({DisplayEmails(contact.Emails)})";
         }
