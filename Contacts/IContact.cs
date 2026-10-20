@@ -2,9 +2,15 @@ namespace Contacts;
 
 public interface IContact
 {
-    Guid Id { get; }
+    char TypePrefix { get; }
+    ContactId Id { get; }
     FullName Name { get; }
     ContactEmails Emails { get; }
+}
+
+public record ContactId(char TypePrefix, int Number)
+{
+    public override string ToString() => $"{TypePrefix}:{Number}";
 }
 
 public record FullName(
@@ -36,35 +42,35 @@ public record ContactEmails(IReadOnlyList<string> Emails)
     }
 }
 
-public record Student(FullName Name, ContactEmails Emails) : IContact
+public abstract record BaseContact(FullName Name, ContactEmails Emails) : IContact
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
-    
-    // NOTE: equality is only defined between Student Instances
-    // any comparison against non-Student type is false
-    public virtual bool Equals(Student? other)
-    {
-        // intentionally leaving ID property out of equality check
-        return other is not null
-               && Name == other.Name
-               && Emails == other.Emails;
-    }
+    // prefix for an ID is unique to each type, this allows them to define it
 
-    // again, intentionally leaving ID property out of hash calc
-    // allows two Student records where only ID's differ to have same Hash
+    public abstract char TypePrefix { get; }
+    public required ContactId Id { get; init; }
+
+    // equals definition is shared between derivers
+    public virtual bool Equals(BaseContact? other)
+    {
+        return other is not null
+            && Name == other.Name
+            && Emails == other.Emails;
+    }
+    
+    // hashcode definition is shared between derivers
     public override int GetHashCode() => HashCode.Combine(Name, Emails);
 }
 
-public record Employee(FullName Name, ContactEmails Emails) : IContact
+public sealed record Student(FullName Name, ContactEmails Emails) : BaseContact(Name, Emails)
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
-    
-    public virtual bool Equals(Employee? other)
-    {
-        return other is not null
-               && Name == other.Name
-               && Emails == other.Emails;
-    }
-    
-    public override int GetHashCode() => HashCode.Combine(Name, Emails);
+    // unique to Student
+    public const char Prefix = 'S';
+    public override char TypePrefix => Prefix;
+}
+
+public sealed record Employee(FullName Name, ContactEmails Emails) : BaseContact(Name, Emails)
+{
+    // unique to Employee
+    public const char Prefix = 'E';
+    public override char TypePrefix => Prefix;
 }

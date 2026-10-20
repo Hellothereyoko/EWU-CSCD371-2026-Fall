@@ -1,8 +1,10 @@
-﻿namespace Persistence;
+﻿using Contacts;
+
+namespace Persistence;
 
 public record ContactDto
 (
-    Guid Id,
+    ContactId Id,
     string ContactType,
     string FirstName,
     string LastName,

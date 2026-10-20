@@ -19,6 +19,14 @@ public class ContactBook
     public void Add(IContact item)
     {
         Entities.Add(item);
+
+        char prefix = item.TypePrefix;
+        int itemIdNumber = item.Id.Number;
+        
+        // if we have no value for this prefix, make one.
+        // or the value for this prefix is lower than this items id + 1
+        if (!_nextIds.TryGetValue(prefix, out int currentNext) || currentNext <= itemIdNumber)
+            _nextIds[prefix] = itemIdNumber + 1;
     }
 
 
@@ -48,6 +56,16 @@ public class ContactBook
     /// </summary>
     /// <returns></returns>
     public IContact[] GetAll() => Entities.ToArray();
+    
+    private readonly Dictionary<char, int> _nextIds = [];
+
+    public int GetNextId(char prefix)
+    {
+        // returns value or if prefix not exist, default 1
+        // NOTE: GetNextID does not mutate the dictionary, only actually adding the IContact item does
+        // this just allows program to see what the next value for a prefix should be
+        return _nextIds.GetValueOrDefault(prefix, 1);
+    }
 }
 
 

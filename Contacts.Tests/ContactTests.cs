@@ -10,15 +10,19 @@ public class ContactTests
     private const string TestEmail = "email";
     private static readonly ContactEmails TestContactEmails = new([TestEmail]);
     private const string TestEmail2 = "email2";
+    private static readonly ContactId TestId = new('T', 1);
     
-    private static Student CreateStudent() => new(TestName, TestContactEmails);
-    private static Employee CreateEmployee() => new(TestName, TestContactEmails);
+    private static Student CreateStudent() => new(TestName, TestContactEmails) { Id = TestId };
+    // used to show all data but ID is same
+    private static Student CreateStudent(ContactId id) => new(TestName, TestContactEmails) { Id = id };
+    private static Employee CreateEmployee() => new(TestName, TestContactEmails) { Id = TestId };
+    
     
      [TestMethod]
      public void Students_WithSameData_HaveDifferentIds()
      {
-         Student student1 = CreateStudent();
-         Student student2 = CreateStudent();
+         Student student1 = CreateStudent(new ContactId('S', 1));
+         Student student2 = CreateStudent(new ContactId('S', 2));
          
          Assert.AreNotEqual(student1.Id, student2.Id);
      }

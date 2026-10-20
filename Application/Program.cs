@@ -113,10 +113,15 @@ public static class Program
 
         void PromptCreateEmployee()
         {
+            ContactId id = new(Employee.Prefix, contactBook.GetNextId(Employee.Prefix));
+            
             Employee employeeToAdd = new(
-                PromptFullName(), 
+                PromptFullName(),
                 PromptEmails("Please Provide an email for the contact")
-            );
+            )
+            {
+                Id = id
+            };
             
             while (contactBook.Contains(employeeToAdd))
             {
@@ -132,10 +137,15 @@ public static class Program
         
         void PromptCreateStudent()
         {
+            ContactId id = new(Student.Prefix, contactBook.GetNextId(Student.Prefix));
+
             Student studentToAdd = new(
-                PromptFullName(), 
+                PromptFullName(),
                 PromptEmails("Please provide an email for the contact")
-            );
+            )
+            {
+                Id = id
+            };
 
             // While loop for editing?
             while (contactBook.Contains(studentToAdd))
@@ -308,7 +318,7 @@ public static class Program
             string lastName = contactToEdit.Name.LastName;
             string? middleName = contactToEdit.Name.MiddleName;
             ContactEmails emails = contactToEdit.Emails;
-            Guid id = contactToEdit.Id;
+            ContactId id = contactToEdit.Id;
 
             while (true)
             {
