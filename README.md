@@ -14,13 +14,13 @@ Reference the material on generics, collections, and graph traversal covered in 
 
 ### Project setup
 
-- Create a class library project named `Dag` in the `Dag` directory. ❌✔
-- Add the `Dag` project to `Dag.slnx`. ❌✔
-- Ensure the `Dag.Tests` project references the `Dag` project. ❌✔
+- Create a class library project named `Dag` in the `Dag` directory. ✔
+- Add the `Dag` project to `Dag.slnx`. ✔
+- Ensure the `Dag.Tests` project references the `Dag` project. ✔
 
 ### `Dag<T>`
 
-- Create a generic `Dag<T>` class. ❌✔
+- Create a generic `Dag<T>` class. ✔
 - Implement `AddNode(T value)`. ❌✔
   - Add a node to the graph. ❌✔
   - Adding an existing node must not throw or add a duplicate. ❌✔
