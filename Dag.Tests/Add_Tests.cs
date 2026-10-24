@@ -36,4 +36,29 @@ public class Add_Tests
             new[] { "CSCD 300" },
             graph.GetDependents("CSCD 211").ToArray());
     }
+
+    [TestMethod]
+    public void AddDependency_MissingNodesThrows()
+    {
+        var graph = new Dag<int>();
+
+        var ex = Assert.Throws<InvalidOperationException>(() => graph.AddDependency(1, 2));
+        Assert.AreEqual("Both nodes must exist in the graph.", ex.Message);
+    }
+
+    [TestMethod]
+    public void AddDependency_WouldCreateCycleThrows()
+    {
+        var graph = new Dag<int>();
+
+        graph.AddNode(0);
+        graph.AddNode(1);
+        graph.AddNode(2);
+
+        graph.AddDependency(0, 1);
+        graph.AddDependency(1, 2);
+
+        var ex = Assert.Throws<InvalidOperationException>(() => graph.AddDependency(2, 0));
+        Assert.AreEqual("Adding this dependency would create a cycle.", ex.Message);
+    }
 }
