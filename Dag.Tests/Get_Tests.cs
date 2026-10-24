@@ -13,11 +13,23 @@ namespace Dag.Tests
 
         //Will function as the backend for Dag Class to implement Get Tests
         [TestMethod]
-        public void getDependencies(){}
+        public void GetDependencies_ThrowsExceptionOnMissingElement()
+        {
+            var dag = new Dag<int>();
+            var ex = Assert.Throws<InvalidOperationException>(() => dag.GetDependencies(5));
+
+            Assert.AreEqual("The node does not exist in the graph.", ex.Message);
+        }
         
 
         [TestMethod]
-        public void getDependents(){}
+        public void GetDependents_ThrowsExceptionOnMissingElement()
+        {
+            var dag = new Dag<int>();
+            var ex = Assert.Throws<InvalidOperationException>(() => dag.GetDependents(5));
+
+            Assert.AreEqual("The node does not exist in the graph.", ex.Message);
+        }
 
     }
 }
