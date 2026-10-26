@@ -1,53 +1,70 @@
-# Assignment
+# Assignment 8 - Resilient People Importer
 
-The purpose of this assignment is to learn how to work with delegates and lambda expressions. We will define a 
-calculator class that stores 4 actions corresponding to +, -, *, /, and multiple. The calculator class will
-also support customizable behavior for reading and writing content.
+## Overview
+
+Build a people CSV importer using the same format as Assignment 7. The purpose of this assignment is to learn **exception handling** and **resource management with `IDisposable`**. Your importer will either stop at the first invalid record or skip and report invalid records, and it must release its resources even when an exception occurs.
+
+**No starting code is provided.** You may reuse your own Assignment 7 models (`Person`/`Address`), but this assignment must build and test independently.
 
 ## Reading
 
-Chapter 13: Delegates and Lambda Expressions
-Chapter 15: Collection Interfaces with Standard Query Operators
+- Essential C#: Exception Handling, including [Guidelines for Exception Handling](https://essentialcsharp.com/guidelines-for-exception-handling#guidelines-for-exception-handling).
+- Essential C#: Resource cleanup (`IDisposable`, `using` statements/declarations, and `try`/`finally`).
+- Review the exception handling guidelines covered in class.
 
 ## Instructions
 
-- Create a *Console* project called "Calculate". ❌✔
-- Define a Program Class
-  - Define two init-only setter properties, `WriteLine` and `ReadLine`, that contain delegates for writing a line of text and reading a line of text respectively ❌✔
-  - Write a test that sets these properties at construction time and then invokes the properties and verifies the expected behavior occurs. ❌✔
-  - Set the default behavior for the `WriteLine` and `ReadLine` properties to invoke `System.Console` versions of the methods and add an empty default constructor. ❌✔
-- Define a Calculator class ❌✔
-  - Define static `Add`, `Subtract`, `Multiply`, and `Divide` methods that have two parameters and return a third parameter. ❌✔
-  - Define a read-only property, `MathematicalOperations`, of type `System.Collections.Generics.IReadOnlyDictionary<TKey,TValue>` that:
-    - is initialized to a `System.Collections.Generics.Dictionary<<TKey,TValue>` instance that. ❌✔
-      - Uses `char` for the key corresponding to the operators +, -, *, and /. ❌✔
-      - Has values that correspond with the Add, Subtract, Multiply, and Divide methods. ❌✔
-  - Implement a `TryCalculate` method following "TryParse" pattern ❌✔
-    - Valid `calculation` expressions include such strings as "3 + 4", "42 - 2", etc. ❌✔
-    - If there is no whitespace around the operator, you can assume the `calculation` is invalid and return false. Similarly if the operands are not integers. ❌✔
-    - Use `string.Split()`, pattern matching, logical and operators to parse the string in their entirety ❌✔
-    - Index into the `MathematicalOperations` method using the operator parsed during pattern matching to find the corresponding implementation and invoke it. ❌✔
-- Implement the Program class to instantiate the calculator and invoke it based on user input from the console. ❌✔
-- Be sure to use the `WriteLine`/`ReadLine` properties on `Program` for testing the input and output of your program. ❌✔
+### Project setup
+
+- Create a `.slnx` solution containing a class library and a unit test project that references it. ❌✔
+
+### CSV data
+
+Use the same columns as Assignment 7:
+
+```text
+Id,FirstName,LastName,Email,StreetAddress,City,State,Zip
+```
+
+- Parse each record into person/address models. ❌✔
+- Choose and document at least three validation rules, such as a wrong field count, an invalid or duplicate `Id`, or missing required values. ❌✔
+- Create test data with a header and one record per line. You do not need to support quoted fields, embedded commas, or multiline records. ❌✔
+
+### Exception handling
+
+- Validate public method and constructor arguments. Throw `ArgumentNullException`, `ArgumentException`, or `ArgumentOutOfRangeException` as appropriate. Ensure the appropriate argument name is set on the thrown exception. Consider helpers such as `ArgumentNullException.ThrowIfNull` and `nameof`. ❌✔
+- Define a custom exception, such as `InvalidPersonRecordException`, with a meaningful message, line number, and raw line text. Provide the standard constructors, including one that accepts an inner exception. ❌✔
+- Wrap parsing failures in your custom exception, preserving the original exception as `InnerException`. ❌✔
+- Let the caller choose between two import modes: ❌✔
+  - **Fail-fast:** Throw your custom exception on the first invalid record. ❌✔
+  - **Skip-invalid:** Report each invalid record and its exception through a caller-supplied callback, then continue. Do not silently discard records. ❌✔
+- Catch only record errors you can recover from. Let `IOException`, callback exceptions, and other unexpected exceptions propagate with their original stack traces. Do not use `throw ex;` or hide failures in a general catch block. Favor exception filters over catch-and-rethrow. ❌✔
+- Return the accepted people only after the import completes. A failed import must throw, not return a partial result as though it succeeded. ❌✔
+
+### Resource management (`IDisposable`)
+
+- Create a sealed component that implements `IDisposable` and owns a `TextReader`. Document ownership of any reader passed to it. A finalizer is not required. ❌✔
+- Use `using` or `try`/`finally` to release owned resources after both successful and failed imports. ❌✔
+- Make repeated `Dispose()` calls safe. Using the component after disposal must throw `ObjectDisposedException`. ❌✔
+
+### Tests
+
+- Test successful imports, including one from a temporary file. Delete the file when the test finishes. ❌✔
+- Test both import modes with several kinds of invalid records. Verify fail-fast reports the first bad line number, and skip-invalid returns only valid people and reports every rejected record. Use a closure to collect or count callback reports. ❌✔
+- Verify wrapped exceptions preserve the expected `InnerException` type, and argument exceptions identify the correct parameter. ❌✔
+- Use a fake `TextReader` or a mocking library to simulate an I/O failure. Verify reader and callback exceptions propagate as the same exception instance, without wrapping or swallowing them. ❌✔
+- Test disposal after successful and failed imports, repeated disposal, and use after disposal. ❌✔
 
 ## Extra Credit
 
-Do one of the following two options (or both if you want extra, extra credit) :)
-
-- Refactor the redirect portion of the `Program` class into 'ProgramBase`
-- Move ProgramBase into a ConsoleUtilities assembly to be used in other console-based projects
-- Use generics the mathematical operations methods and consider using generic constraints (requires .NET 7.0)
+- Support a caller-supplied validation delegate. Handle rule violations through the selected import mode, but let unexpected exceptions from the delegate propagate. ❌✔
+- Use a `when` filter to handle specific recoverable conditions. Include a test showing that non-matching exceptions are not caught. ❌✔
 
 ## Fundamentals
 
-- Place all shared project properties into a `Directory.Build.props` file.
-- Place all shared project items into a `Directory.Build.targets` file. (optional)
-- nullable reference types is enabled  ❌✔
-- Ensure that you turn on code analysis for all projects(EnableNETAnalyzers)  ❌✔
-- Set LangVersion and the TargetFramework to the latest released versions available (preview versions optional)   ❌✔
-- and enabled .NET analyzers for both projects ❌✔
-- For this assignment, always use `Assert.AreEqual<T>()` (the generic version)  ❌✔
-- All of the above should be unit tested ❌✔
-- Choose simplicity over complexity ❌✔
+- Target all projects at .NET 10 (`net10.0`) and use the latest `LangVersion`. ❌✔
+- Enable nullable reference types, .NET analyzers, and code style enforcement for all projects. ❌✔
+- Ensure there are no build errors or warnings, including analyzer warnings. ❌✔
+- All of the above should be unit tested. ❌✔
+- Choose simplicity over complexity. No console UI, async, or multithreading is required. ❌✔
 
-## See [Docs](Docs)
