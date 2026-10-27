@@ -1,35 +1,27 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Dag;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-
-
-namespace Dag.Tests
-
-{
+namespace Dag.Tests;
 
 [TestClass]
-    public class Get_Tests{
+public class GetTests
+{
+    [TestMethod]
+    public void GetDependenciesThrowsExceptionOnMissingElement()
+    {
+        var dag = new Dag<int>();
+        var ex = Assert.Throws<InvalidOperationException>(() => dag.GetDependencies(5));
 
-        //Will function as the backend for Dag Class to implement Get Tests
-        [TestMethod]
-        public void GetDependencies_ThrowsExceptionOnMissingElement()
-        {
-            var dag = new Dag<int>();
-            var ex = Assert.Throws<InvalidOperationException>(() => dag.GetDependencies(5));
+        Assert.AreEqual("The node does not exist in the graph.", ex.Message);
+    }
 
-            Assert.AreEqual("The node does not exist in the graph.", ex.Message);
-        }
-        
+    [TestMethod]
+    public void GetDependentsThrowsExceptionOnMissingElement()
+    {
+        var dag = new Dag<int>();
+        var ex = Assert.Throws<InvalidOperationException>(() => dag.GetDependents(5));
 
-        [TestMethod]
-        public void GetDependents_ThrowsExceptionOnMissingElement()
-        {
-            var dag = new Dag<int>();
-            var ex = Assert.Throws<InvalidOperationException>(() => dag.GetDependents(5));
-
-            Assert.AreEqual("The node does not exist in the graph.", ex.Message);
-        }
-
+        Assert.AreEqual("The node does not exist in the graph.", ex.Message);
     }
 }

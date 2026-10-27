@@ -5,10 +5,15 @@ using System;
 namespace Dag.Tests;
 
 [TestClass]
-public class Add_Tests
+public class AddTests
 {
+    private static readonly string[] ExpectedCourse211 = ["CSCD 211"];
+    private static readonly string[] ExpectedCourse300 = ["CSCD 300"];
+    private static readonly int[] ExpectedNode0Dependency = [4];
+    private static readonly int[] ExpectedNode4Dependent = [0];
+
     [TestMethod]
-    public void AddNode_AddsNodeToGraph()
+    public void AddNodeAddsNodeToGraph()
     {
         var graph = new Dag<string>();
 
@@ -19,7 +24,7 @@ public class Add_Tests
     }
 
     [TestMethod]
-    public void AddNode_DuplicateNodeDoesNotThrowOrDuplicateEdges()
+    public void AddNodeDuplicateNodeDoesNotThrowOrDuplicateEdges()
     {
         var graph = new Dag<string>();
         graph.AddNode("CSCD 211");
@@ -30,15 +35,15 @@ public class Add_Tests
         graph.AddDependency("CSCD 211", "CSCD 300");
 
         CollectionAssert.AreEqual(
-            new[] { "CSCD 211" },
+            ExpectedCourse211,
             graph.GetDependencies("CSCD 300").ToArray());
         CollectionAssert.AreEqual(
-            new[] { "CSCD 300" },
+            ExpectedCourse300,
             graph.GetDependents("CSCD 211").ToArray());
     }
 
     [TestMethod]
-    public void AddDependency_MissingNodesThrows()
+    public void AddDependencyMissingNodesThrows()
     {
         var graph = new Dag<int>();
 
@@ -47,7 +52,7 @@ public class Add_Tests
     }
 
     [TestMethod]
-    public void AddDependency_WouldCreateCycleThrows()
+    public void AddDependencyWouldCreateCycleThrows()
     {
         var graph = new Dag<int>();
 
@@ -63,7 +68,7 @@ public class Add_Tests
     }
 
     [TestMethod]
-    public void AddDependency_SkipsAlreadyVisitedNodesDuringCycleCheck()
+    public void AddDependencySkipsAlreadyVisitedNodesDuringCycleCheck()
     {
         var graph = new Dag<int>();
 
@@ -79,7 +84,7 @@ public class Add_Tests
 
         graph.AddDependency(4, 0);
 
-        CollectionAssert.AreEqual(new[] { 4 }, graph.GetDependencies(0).ToArray());
-        CollectionAssert.AreEqual(new[] { 0 }, graph.GetDependents(4).ToArray());
+        CollectionAssert.AreEqual(ExpectedNode0Dependency, graph.GetDependencies(0).ToArray());
+        CollectionAssert.AreEqual(ExpectedNode4Dependent, graph.GetDependents(4).ToArray());
     }
 }
