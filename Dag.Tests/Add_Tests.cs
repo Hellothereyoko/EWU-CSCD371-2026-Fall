@@ -61,4 +61,25 @@ public class Add_Tests
         var ex = Assert.Throws<InvalidOperationException>(() => graph.AddDependency(2, 0));
         Assert.AreEqual("Adding this dependency would create a cycle.", ex.Message);
     }
+
+    [TestMethod]
+    public void AddDependency_SkipsAlreadyVisitedNodesDuringCycleCheck()
+    {
+        var graph = new Dag<int>();
+
+        for (var node = 0; node <= 4; node++)
+        {
+            graph.AddNode(node);
+        }
+
+        graph.AddDependency(0, 1);
+        graph.AddDependency(0, 2);
+        graph.AddDependency(1, 3);
+        graph.AddDependency(2, 3);
+
+        graph.AddDependency(4, 0);
+
+        CollectionAssert.AreEqual(new[] { 4 }, graph.GetDependencies(0).ToArray());
+        CollectionAssert.AreEqual(new[] { 0 }, graph.GetDependents(4).ToArray());
+    }
 }
