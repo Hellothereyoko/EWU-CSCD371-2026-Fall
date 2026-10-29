@@ -12,32 +12,73 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 public class calculateTests
 {
 
-    // Write a test that sets these properties at construction time and then invokes the properties and verifies the expected behavior occurs.
-
     /// <summary>
-    /// Tests addition operations
+    /// This test launches the program & checks if Calculator obj is instantiated
     /// </summary>
     [TestMethod]
-    public void AddTests() { }
+    public void CalculatorObjInitTest(){
+        
+        var program = new Program();
+
+        Assert.IsNotNull(program.CalculatorInstance);
+    }
+
+
+    /// <summary>
+    /// Tests addition operations performed
+    /// </summary>
+    [TestMethod]
+    public void AddTests()
+    {
+        //Arrange
+
+        //Act
+
+        //Assert
+    }
 
 
     /// <summary>
     /// Tests subtractions operations
     /// </summary>
     [TestMethod]
-    public void subTests() { }
+    public void subTests()
+    {
+        
+        //Arrange
+
+        //Act
+
+        //Assert
+    }
 
 
     /// <summary>
     /// Tests multiplication operations
     /// </summary>
     [TestMethod]
-    public void multTests() { }
+    public void multTests()
+    {
+        
+        //Arrange
+
+        //Act
+
+        //Assert
+    }
 
 
     /// <summary>
     /// Tests division operations
     /// </summary>
     [TestMethod]
-    public void divTests() {}
+    public void divTests()
+    {
+        
+        //Arrange
+
+        //Act
+
+        //Assert
+    }
 }

@@ -1,4 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="**/bin/**/*.cs;**/obj/**/*.cs;Dag.Tests/**/*.cs" />
   </ItemGroup>
