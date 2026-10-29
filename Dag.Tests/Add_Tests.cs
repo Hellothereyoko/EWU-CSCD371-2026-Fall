@@ -3,7 +3,7 @@ namespace Dag.Tests;
 [TestClass]
 public class AddTests
 {
-
+    private static readonly string[] ExpectedFanBranches = ["CSCD 300", "CSCD 320"];
     private static readonly string[] ExpectedCourse211 = ["CSCD 211"];
     private static readonly string[] ExpectedCourse300 = ["CSCD 300"];
     private static readonly int[] ExpectedNode0Dependency = [4];
@@ -69,7 +69,7 @@ public class AddTests
         CollectionAssert.AreEqual(ExpectedNode4Dependent, graph.GetDependents(4).ToArray());
     }
 
-    private static Dag<string> BuildDiamond()
+    private static Dag<string> BuildFan()
     {
         var graph = new Dag<string>();
 
@@ -89,28 +89,24 @@ public class AddTests
     [TestMethod]
     public void FanInOutDemonstration()
     {
-        var diamond = BuildDiamond();
+        var fan = BuildFan();
 
-        CollectionAssert.AreEquivalent(
-            new[] { "CSCD 300", "CSCD 320" },
-            diamond.GetDependents("CSCD 211").ToArray());
-        CollectionAssert.AreEquivalent(
-            new[] { "CSCD 300", "CSCD 320" },
-            diamond.GetDependencies("CSCD 371").ToArray());
+        CollectionAssert.AreEquivalent(ExpectedFanBranches, fan.GetDependents("CSCD 211").ToArray());
+        CollectionAssert.AreEquivalent(ExpectedFanBranches, fan.GetDependencies("CSCD 371").ToArray());
 
-        Assert.Contains("CSCD 211", diamond.GetDependencies("CSCD 300"));
-        Assert.Contains("CSCD 211", diamond.GetDependencies("CSCD 320"));
-        Assert.Contains("CSCD 371", diamond.GetDependents("CSCD 300"));
-        Assert.Contains("CSCD 371", diamond.GetDependents("CSCD 320"));
+        Assert.Contains("CSCD 211", fan.GetDependencies("CSCD 300"));
+        Assert.Contains("CSCD 211", fan.GetDependencies("CSCD 320"));
+        Assert.Contains("CSCD 371", fan.GetDependents("CSCD 300"));
+        Assert.Contains("CSCD 371", fan.GetDependents("CSCD 320"));
     }
 
     [TestMethod]
     public void AddDependencyCreatesCycleThrows()
     {
-        var diamond = BuildDiamond();
+        var fan = BuildFan();
 
         var ex = Assert.Throws<InvalidOperationException>(
-            () => diamond.AddDependency("CSCD 371", "CSCD 320"));
+            () => fan.AddDependency("CSCD 371", "CSCD 320"));
 
         Assert.AreEqual("Adding this dependency would create a cycle.", ex.Message);
     }
