@@ -12,6 +12,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 public class calculateTests
 {
 
+    // Write a test that sets these properties at construction time and then invokes the properties and verifies the expected behavior occurs.
+
     /// <summary>
     /// Tests addition operations
     /// </summary>
