@@ -1,12 +1,9 @@
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-
 namespace Dag.Tests;
 
 [TestClass]
 public class AddTests
 {
+
     private static readonly string[] ExpectedCourse211 = ["CSCD 211"];
     private static readonly string[] ExpectedCourse300 = ["CSCD 300"];
     private static readonly int[] ExpectedNode0Dependency = [4];
@@ -52,22 +49,6 @@ public class AddTests
     }
 
     [TestMethod]
-    public void AddDependencyWouldCreateCycleThrows()
-    {
-        var graph = new Dag<int>();
-
-        graph.AddNode(0);
-        graph.AddNode(1);
-        graph.AddNode(2);
-
-        graph.AddDependency(0, 1);
-        graph.AddDependency(1, 2);
-
-        var ex = Assert.Throws<InvalidOperationException>(() => graph.AddDependency(2, 0));
-        Assert.AreEqual("Adding this dependency would create a cycle.", ex.Message);
-    }
-
-    [TestMethod]
     public void AddDependencySkipsAlreadyVisitedNodesDuringCycleCheck()
     {
         var graph = new Dag<int>();
@@ -87,4 +68,51 @@ public class AddTests
         CollectionAssert.AreEqual(ExpectedNode0Dependency, graph.GetDependencies(0).ToArray());
         CollectionAssert.AreEqual(ExpectedNode4Dependent, graph.GetDependents(4).ToArray());
     }
+
+    private static Dag<string> BuildDiamond()
+    {
+        var graph = new Dag<string>();
+
+        graph.AddNode("CSCD 211");
+        graph.AddNode("CSCD 300");
+        graph.AddNode("CSCD 320");
+        graph.AddNode("CSCD 371");
+
+        graph.AddDependency("CSCD 211", "CSCD 300");
+        graph.AddDependency("CSCD 211", "CSCD 320");
+        graph.AddDependency("CSCD 300", "CSCD 371");
+        graph.AddDependency("CSCD 320", "CSCD 371");
+
+        return graph;
+    }
+
+    [TestMethod]
+    public void FanInOutDemonstration()
+    {
+        var diamond = BuildDiamond();
+
+        CollectionAssert.AreEquivalent(
+            new[] { "CSCD 300", "CSCD 320" },
+            diamond.GetDependents("CSCD 211").ToArray());
+        CollectionAssert.AreEquivalent(
+            new[] { "CSCD 300", "CSCD 320" },
+            diamond.GetDependencies("CSCD 371").ToArray());
+
+        Assert.Contains("CSCD 211", diamond.GetDependencies("CSCD 300"));
+        Assert.Contains("CSCD 211", diamond.GetDependencies("CSCD 320"));
+        Assert.Contains("CSCD 371", diamond.GetDependents("CSCD 300"));
+        Assert.Contains("CSCD 371", diamond.GetDependents("CSCD 320"));
+    }
+
+    [TestMethod]
+    public void AddDependencyCreatesCycleThrows()
+    {
+        var diamond = BuildDiamond();
+
+        var ex = Assert.Throws<InvalidOperationException>(
+            () => diamond.AddDependency("CSCD 371", "CSCD 320"));
+
+        Assert.AreEqual("Adding this dependency would create a cycle.", ex.Message);
+    }
+
 }
