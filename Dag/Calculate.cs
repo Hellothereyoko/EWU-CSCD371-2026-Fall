@@ -1,109 +1,161 @@
 namespace Dag;
 
 using System;
+using System.Collections.Generic;
 
 /// <summary>
-/// This class is where all subclasses and methods for the program sit
+/// Handles console interaction and a small expression loop for calculator input.
 /// </summary>
 public class Program
 {
     private readonly Calculator calculator;
-    public Calculator CalculatorInstance => calculator; //Exposed for testing
-
-
-    //Define two init-only setter properties, `WriteLine` and `ReadLine`, that contain delegates for writing a line of text and reading a line of text respectively
-    public Action<string> WriteLine { get; init; } = Console.WriteLine;
-    public Func<string?> ReadLine { get; init; } = Console.ReadLine;
 
 
     /// <summary>
-    /// This is where the program runs it's contained classes
+    /// Initializes a new instance of the Program class with default console interaction methods.
+    /// </summary>
+    public Program()
+        : this(Console.WriteLine, Console.ReadLine)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the Program class with specified write and read methods for console interaction.
+    /// </summary>
+    /// <param name="writeLine"></param>
+    /// <param name="readLine"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Program(Action<string> writeLine, Func<string?> readLine)
+    {
+        WriteLine = writeLine ?? throw new ArgumentNullException(nameof(writeLine));
+        ReadLine = readLine ?? throw new ArgumentNullException(nameof(readLine));
+        calculator = new Calculator();
+    }
+
+    public Calculator CalculatorInstance => calculator;
+
+    public Action<string> WriteLine { get; init; }
+    public Func<string?> ReadLine { get; init; }
+
+
+    /// <summary>
+    /// The main entry point for the application. It creates a new instance of the Program class and calls the Run method to start the calculator loop.
     /// </summary>
     public static void Main()
     {
-        new Program();
-
-    }// END Main method
-
-	
+        new Program().Run();
+    }
 
     /// <summary>
-    /// The actual program class where we implement things to be run in main
+    /// Starts the calculator loop, prompting the user for input and displaying results or error messages.
     /// </summary>
-    public Program()
+    public void Run()
     {
-        WriteLine("Program Initializing...");
-        
-        calculator = new Calculator();
-        
-      
-        //Collect data input from user 
+        WriteLine("Enter a calculation in the form: number operator number");
 
+        while (true)
+        {
+            WriteLine("Expression: ");
+            string? input = ReadLine();
 
-        //Pass to TryCalc where the operation is performed
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                WriteLine("Goodbye.");
+                return;
+            }
 
-
-        //Receive result from TryCalc 
-
-
-        //Print result to screen 
-
-
-        //Ask if another expression is to be entered. Else quit the runtime.
-
-
-} //END Program Method
-
-
-
-//set the default behavior for the `WriteLine` and `ReadLine` properties to invoke `System.Console` versions of the methods and add an empty default constructor. ❌✔
-
-
-//- Define static `Add`, `Subtract`, `Multiply`, and `Divide` methods that have two parameters and return a third parameter. ❌✔
-//- Define a read-only property, `MathematicalOperations`, of type `System.Collections.Generics.IReadOnlyDictionary<TKey,TValue>` that:
-//- is initialized to a `System.Collections.Generics.Dictionary<<TKey,TValue>` instance that. ❌✔
-  //    - Uses `char` for the key corresponding to the operators +, -, *, and /. ❌✔
-    //  - Has values that correspond with the Add, Subtract, Multiply, and Divide methods. ❌✔
-//- Implement a `TryCalculate` method following "TryParse" pattern ❌✔
-  //  - Valid `calculation` expressions include such strings as "3 + 4", "42 - 2", etc. ❌✔
-    //- If there is no whitespace around the operator, you can assume the `calculation` is invalid and return false. Similarly if the operands are not integers. ❌✔
-    //- Use `string.Split()`, pattern matching, logical and operators to parse the string in their entirety ❌✔
-    //- Index into the `MathematicalOperations` method using the operator parsed during pattern matching to find the corresponding implementation and invoke it. ❌✔
-//- Implement the Program class to instantiate the calculator and invoke it based on user input from the console. ❌✔
-//- Be sure to use the `WriteLine`/`ReadLine` properties on `Program` for testing the input and output of your program. ❌✔
+            if (calculator.TryCalculate(input, out int result))
+            {
+                WriteLine($"Result: {result}");
+            }
+            else
+            {
+                WriteLine("Invalid calculation. Use the format: 3 + 4");
+            }
+        }
+    }
+}
 
 /// <summary>
-/// Contains math methods used by the program as static methods passed as a ref
+/// Contains the supported arithmetic methods and parse logic for calculator expressions.
 /// </summary>
 public class Calculator
 {
-    
-    //NOTES: Lvalue & Rvalue are the two params passed. Result is the return 
+    public static int Add(int left, int right) => left + right;
 
-    private static void Add(){} //Has two params and returns a 3rd
+    public static int Subtract(int left, int right) => left - right;
 
-    private static void Subtract(){} //Has two params and returns a 3rd
+    public static int Multiply(int left, int right) => left * right;
 
-    private static void Multiply(){} //Has two params and returns a 3rd
-
-    private static void Divide(){} //Has two params and returns a 3rd
-
-
-    /// <summary>
-    /// This is responsible for executing a calc attempt using parse pattern
-    /// NOTE: may be refactored into the actual pgrm loop
-    /// </summary>
-    private void TryCalculate()
+    public static int Divide(int left, int right)
     {
-        //Pass entered expression from Program Class
+        if (right == 0)
+        {
+            throw new DivideByZeroException();
+        }
 
-        //Analyse chars for Operators 
-
-        //Perform Operations using Calculator class 
-
-        //Return the result to Program 
-
+        return left / right;
     }
 
-  } //END Calculator Class
-} //END Global Program Class
+    /// <summary>
+    /// Gets the dictionary of supported mathematical operations.
+    /// </summary>
+    public IReadOnlyDictionary<char, Func<int, int, int>> MathematicalOperations { get; } =
+        new Dictionary<char, Func<int, int, int>>
+        {
+            { '+', Add },
+            { '-', Subtract },
+            { '*', Multiply },
+            { '/', Divide },
+        };
+
+    /// <summary>
+    /// Attempts to calculate the result of a mathematical expression.
+    /// </summary>
+    /// <param name="calculation">The mathematical expression to calculate.</param>
+    /// <param name="result">The result of the calculation, if successful.</param>
+    /// <returns>true if the calculation was successful; otherwise, false.</returns>
+    public bool TryCalculate(string calculation, out int result)
+    {
+        result = 0;
+
+        if (string.IsNullOrWhiteSpace(calculation))
+        {
+            return false;
+        }
+
+        string[] parts = calculation.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (parts.Length != 3)
+        {
+            return false;
+        }
+
+        if (!int.TryParse(parts[0], out int left) || !int.TryParse(parts[2], out int right))
+        {
+            return false;
+        }
+
+        string operatorToken = parts[1];
+
+        if (operatorToken.Length != 1)
+        {
+            return false;
+        }
+
+        char op = operatorToken[0];
+
+        if (!MathematicalOperations.TryGetValue(op, out Func<int, int, int>? operation))
+        {
+            return false;
+        }
+
+        if (op == '/' && right == 0)
+        {
+            return false;
+        }
+
+        result = operation(left, right);
+        return true;
+    }
+}
