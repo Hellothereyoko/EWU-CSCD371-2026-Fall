@@ -10,7 +10,7 @@ using System;
 /// This class handles calc pgrm testing
 /// </summary>
 [TestClass]
-public class calculateTests
+public class CalculateTests
 {
     private Calculator? _calculator;
 
@@ -35,7 +35,7 @@ public class calculateTests
     /// Tests addition operations performed
     /// </summary>
     [TestMethod]
-    public void AddTests()
+    public void AddTest()
     {
         //Arrange
         const string testInput = "4 + 5";
@@ -52,7 +52,7 @@ public class calculateTests
     /// Tests subtractions operations
     /// </summary>
     [TestMethod]
-    public void SubTests()
+    public void SubTest()
     {
 
         //Arrange
@@ -85,7 +85,7 @@ public class calculateTests
     /// Tests division operations
     /// </summary>
     [TestMethod]
-    public void DivideByNumberTest()
+    public void DivideTest()
     {
         const string testInput = "24 / 3";
         bool valid = _calculator!.TryCalculate(testInput, out int result);
@@ -114,3 +114,4 @@ public class calculateTests
     }
 
 }
+

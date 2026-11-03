@@ -8,7 +8,7 @@ using System.Collections.Generic;
 /// </summary>
 public class Program
 {
-    private readonly Calculator calculator;
+    private readonly Calculator _calculator;
 
 
     /// <summary>
@@ -29,10 +29,10 @@ public class Program
     {
         WriteLine = writeLine ?? throw new ArgumentNullException(nameof(writeLine));
         ReadLine = readLine ?? throw new ArgumentNullException(nameof(readLine));
-        calculator = new Calculator();
+        _calculator = new Calculator();
     }
 
-    public Calculator CalculatorInstance => calculator;
+    public Calculator CalculatorInstance => _calculator;
 
     public Action<string> WriteLine { get; init; }
     public Func<string?> ReadLine { get; init; }
@@ -64,7 +64,7 @@ public class Program
                 return;
             }
 
-            if (calculator.TryCalculate(input, out int result))
+            if (_calculator.TryCalculate(input, out int result))
             {
                 WriteLine($"Result: {result}");
             }
