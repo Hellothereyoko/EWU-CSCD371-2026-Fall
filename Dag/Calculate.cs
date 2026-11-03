@@ -37,7 +37,6 @@ public class Program
     public Action<string> WriteLine { get; init; }
     public Func<string?> ReadLine { get; init; }
 
-            WriteLine("Enter 1 to evaluate another expression, or 2 to exit...");
 
     /// <summary>
     /// The main entry point for the application. It creates a new instance of the Program class and calls the Run method to start the calculator loop.
