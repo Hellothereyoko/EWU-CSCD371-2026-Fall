@@ -4,6 +4,7 @@ namespace Dag.Tests;
 using Dag;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 
 
 /// <summary>
@@ -19,6 +20,36 @@ public class CalculateTests
     {
         _calculator = new();
     }
+
+
+    /// <summary>
+    /// This test checks if the Program class throws ArgumentNullException when null delegates are passed to its constructor. It verifies that the correct parameter names are included in the exception messages.
+    /// </summary>
+    [TestMethod]
+    public void ProgramNullDelegatesThrowArgumentNullException()
+    {
+        var writeLineException = Assert.Throws<ArgumentNullException>(
+            () => new Program(null!, Console.ReadLine));
+        Assert.AreEqual("writeLine", writeLineException.ParamName);
+
+        var readLineException = Assert.Throws<ArgumentNullException>(
+            () => new Program(Console.WriteLine, null!));
+        Assert.AreEqual("readLine", readLineException.ParamName);
+    }
+
+    [TestMethod]
+    public void ProgramNullInputExitsGracefully()
+    {
+        var output = new List<string>();
+        var program = new Program(output.Add, () => null);
+
+        program.Run();
+
+        CollectionAssert.AreEqual(
+            new[] { "Enter a calculation in the form: number operator number", "Expression: ", "Goodbye." },
+            output);
+    }
+
 
     /// <summary>
     /// This test launches the program & checks if Calculator obj is instantiated
@@ -93,6 +124,9 @@ public class CalculateTests
         Assert.IsTrue(valid);
     }
 
+    /// <summary>
+    /// Tests division by zero exception
+    /// </summary>
     [TestMethod]
     public void DivideByZeroExceptionTest()
     {
@@ -100,6 +134,10 @@ public class CalculateTests
     }
 
 
+    /// <summary>
+    /// Tests invalid expressions and checks if the calculator returns false for them
+    /// </summary>
+    /// <param name="testInput"></param>
     [TestMethod]
     [DataRow("1 hello 3")]
     [DataRow("1 2")]
@@ -114,4 +152,3 @@ public class CalculateTests
     }
 
 }
-
