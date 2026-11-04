@@ -46,9 +46,33 @@ public class CalculateTests
         program.Run();
 
         Assert.AreSequenceEqual(
-            new[] { "Enter a calculation in the form: number operator number", "Expression: ", "Goodbye." }, output);
+            ["Enter a calculation in the form: number operator number", "Expression: ", "Goodbye."], output);
     }
 
+
+    /// <summary>
+    /// This test checks if the Program class correctly writes the result of a calculation to the output when a valid expression is provided. It simulates user input and captures the output for verification.
+    /// </summary>
+    [TestMethod]
+    public void ProgramWritesCalcToScreen()
+    {
+        var output = new List<string>();
+        var input = new Queue<string?>(new string?[] { "2 + 2", null });
+        var program = new Program(output.Add, input.Dequeue);
+
+        program.Run();
+
+        CollectionAssert.AreEqual(
+            new[]
+            {
+                "Enter a calculation in the form: number operator number",
+                "Expression: ",
+                "Result: 4",
+                "Expression: ",
+                "Goodbye."
+            },
+            output);
+    }
 
     /// <summary>
     /// This test launches the program & checks if Calculator obj is instantiated
