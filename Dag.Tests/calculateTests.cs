@@ -45,9 +45,8 @@ public class CalculateTests
 
         program.Run();
 
-        CollectionAssert.AreEqual(
-            new[] { "Enter a calculation in the form: number operator number", "Expression: ", "Goodbye." },
-            output);
+        Assert.AreSequenceEqual(
+            new[] { "Enter a calculation in the form: number operator number", "Expression: ", "Goodbye." }, output);
     }
 
 
