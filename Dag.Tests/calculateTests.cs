@@ -15,6 +15,10 @@ public class CalculateTests
 {
     private Calculator? _calculator;
 
+
+    /// <summary>
+    /// Initializes the test environment by creating a new instance of the Calculator class before each test method is executed. This ensures that each test starts with a fresh calculator instance, preventing any state carryover from previous tests.
+    /// </summary>
     [TestInitialize]
     public void TestInit()
     {
@@ -37,6 +41,10 @@ public class CalculateTests
         Assert.AreEqual("readLine", readLineException.ParamName);
     }
 
+
+    /// <summary>
+    /// This test checks if the Program class exits gracefully when the ReadLine delegate returns null, simulating a user pressing Ctrl+C or closing the input stream. It verifies that the program outputs the expected messages before exiting.
+    /// </summary>
     [TestMethod]
     public void ProgramNullInputExitsGracefully()
     {
@@ -62,17 +70,16 @@ public class CalculateTests
 
         program.Run();
 
-        CollectionAssert.AreEqual(
-            new[]
-            {
+        Assert.AreSequenceEqual(
+            [
                 "Enter a calculation in the form: number operator number",
                 "Expression: ",
                 "Result: 4",
                 "Expression: ",
                 "Goodbye."
-            },
-            output);
+            ], output);
     }
+    
 
     /// <summary>
     /// This test launches the program & checks if Calculator obj is instantiated
