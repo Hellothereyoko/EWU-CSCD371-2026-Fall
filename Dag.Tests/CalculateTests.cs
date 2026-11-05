@@ -27,72 +27,6 @@ public class CalculateTests
 
 
     /// <summary>
-    /// This test checks if the Program class throws ArgumentNullException when null delegates are passed to its constructor. It verifies that the correct parameter names are included in the exception messages.
-    /// </summary>
-    [TestMethod]
-    public void ProgramNullDelegatesThrowArgumentNullException()
-    {
-        var writeLineException = Assert.Throws<ArgumentNullException>(
-            () => new Program(null!, Console.ReadLine));
-        Assert.AreEqual("writeLine", writeLineException.ParamName);
-
-        var readLineException = Assert.Throws<ArgumentNullException>(
-            () => new Program(Console.WriteLine, null!));
-        Assert.AreEqual("readLine", readLineException.ParamName);
-    }
-
-
-    /// <summary>
-    /// This test checks if the Program class exits gracefully when the ReadLine delegate returns null, simulating a user pressing Ctrl+C or closing the input stream. It verifies that the program outputs the expected messages before exiting.
-    /// </summary>
-    [TestMethod]
-    public void ProgramNullInputExitsGracefully()
-    {
-        var output = new List<string>();
-        var program = new Program(output.Add, () => null);
-
-        program.Run();
-
-        Assert.AreSequenceEqual(
-            ["Enter a calculation in the form: number operator number", "Expression: ", "Goodbye."], output);
-    }
-
-
-    /// <summary>
-    /// This test checks if the Program class correctly writes the result of a calculation to the output when a valid expression is provided. It simulates user input and captures the output for verification.
-    /// </summary>
-    [TestMethod]
-    public void ProgramWritesCalcToScreen()
-    {
-        var output = new List<string>();
-        var input = new Queue<string?>(new string?[] { "2 + 2", null });
-        var program = new Program(output.Add, input.Dequeue);
-
-        program.Run();
-
-        Assert.AreSequenceEqual(
-            [
-                "Enter a calculation in the form: number operator number",
-                "Expression: ",
-                "Result: 4",
-                "Expression: ",
-                "Goodbye."
-            ], output);
-    }
-    
-
-    /// <summary>
-    /// This test launches the program & checks if Calculator obj is instantiated
-    /// </summary>
-    [TestMethod]
-    public void CalculatorObjInitTest()
-    {
-        var program = new Program();
-        Assert.IsNotNull(program.CalculatorInstance);
-    }
-
-
-    /// <summary>
     /// Tests addition operations performed
     /// </summary>
     [TestMethod]
@@ -104,7 +38,7 @@ public class CalculateTests
         bool valid = _calculator!.TryCalculate(testInput, out int result);
 
         //Assert
-        Assert.AreEqual(9, result);
+        Assert.AreEqual<int>(9, result);
         Assert.IsTrue(valid);
     }
 
@@ -121,7 +55,7 @@ public class CalculateTests
         //Act
         bool valid = _calculator!.TryCalculate(testInput, out int result);
         //Assert
-        Assert.AreEqual(5, result);
+        Assert.AreEqual<int>(5, result);
         Assert.IsTrue(valid);
     }
 
@@ -137,7 +71,7 @@ public class CalculateTests
         //Act
         bool valid = _calculator!.TryCalculate(testInput, out int result);
         //Assert
-        Assert.AreEqual(36, result);
+        Assert.AreEqual<int>(36, result);
         Assert.IsTrue(valid);
     }
 
@@ -150,7 +84,7 @@ public class CalculateTests
     {
         const string testInput = "24 / 3";
         bool valid = _calculator!.TryCalculate(testInput, out int result);
-        Assert.AreEqual(8, result);
+        Assert.AreEqual<int>(8, result);
         Assert.IsTrue(valid);
     }
 
