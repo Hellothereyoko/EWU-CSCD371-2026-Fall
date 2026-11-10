@@ -20,15 +20,15 @@ public class SampleData : ISampleData
     public IEnumerable<string> GetUniqueSortedListOfStatesGivenCsvRows()
     {
         return CsvRows
-        .Select(row => row.Split(',')[5])
-        .Distinct()
-        .OrderBy(state => state);
+            .Select(row => row.Split(',')[6])
+            .Distinct()
+            .OrderBy(state => state);
     }
 
     // 3.
     public string GetAggregateSortedListOfStatesUsingCsvRows()
     {
-       string[] states = GetUniqueSortedListOfStatesGivenCsvRows().ToArray();
+        string[] states = GetUniqueSortedListOfStatesGivenCsvRows().ToArray();
         return string.Join(",", states);
     }
 
@@ -42,15 +42,15 @@ public class SampleData : ISampleData
                 var columns = row.Split(',');
                 return new Person
                 {
-                    FirstName = columns[0],
-                    LastName = columns[1],
-                    EmailAddress = columns[2],
+                    FirstName = columns[1],
+                    LastName = columns[2],
+                    EmailAddress = columns[3],
                     Address = new Address
                     {
-                        StreetAddress = columns[3],
-                        City = columns[4],
-                        State = columns[5],
-                        Zip = columns[6]
+                        StreetAddress = columns[4],
+                        City = columns[5],
+                        State = columns[6],
+                        Zip = columns[7]
                     }
                 };
             })
@@ -64,19 +64,20 @@ public class SampleData : ISampleData
     public IEnumerable<(string FirstName, string LastName)> FilterByEmailAddress(Predicate<string> filter)
     {
         return People
-        .Where(p => filter(p.EmailAddress))
-        .Select(p => (p.FirstName, p.LastName));
+            .Where(p => filter(p.EmailAddress))
+            .Select(p => (p.FirstName, p.LastName));
     }
 
     // 6.
     public string GetAggregateListOfStatesGivenPeopleCollection(IEnumerable<IPerson> people)
     {
-        return people
-        .Select(p => p.Address.State)
-        .Distinct()
-        .OrderBy(state => state)
-        .Aggregate(
-            (current, next) => $"{current},{next}");
+        string[] states = people
+            .Select(p => p.Address.State)
+            .Distinct()
+            .OrderBy(state => state)
+            .ToArray();
+
+        return states.Length == 0 ? string.Empty : states.Aggregate((current, next) => $"{current},{next}");
     }
 
 internal class Person : IPerson
@@ -96,4 +97,5 @@ internal class Address : IAddress
     public string Zip { get; set; } = "";
 
 
+}
 }
