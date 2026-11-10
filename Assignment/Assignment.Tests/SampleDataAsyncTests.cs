@@ -92,6 +92,6 @@ public class SampleDataAsyncTests
 
     // Missing coverage for lines:
 
-    //102 & 103: FilterByEmailAddress(Predicate<string> filter) method
-    //114 & 115: GetAggregateListOfStatesGivenPeopleCollection(IAsyncEnumerable<IPerson> people) method
-}
+        // 102-110: FilterByEmailAddress(Predicate<string> filter) method
+        // 180-183: GetAggregateListOfStatesGivenPeopleCollectionAsync(IAsyncEnumerable<IPerson> people) method
+}   

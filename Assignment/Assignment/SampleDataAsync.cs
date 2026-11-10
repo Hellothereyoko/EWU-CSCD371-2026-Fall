@@ -115,7 +115,7 @@ public class SampleDataAsync : IAsyncSampleData
     /// </summary>
     /// <param name="people"></param>
     /// <returns></returns>
-    public async static Task<string> GetAggregateListOfStatesGivenPeopleCollection(IAsyncEnumerable<IPerson> people)
+    private async static Task<string> GetAggregateListOfStatesGivenPeopleCollectionAsync(IAsyncEnumerable<IPerson> people)
     {
         var states = new HashSet<string>();
         await foreach (var person in people)
@@ -170,8 +170,15 @@ public class SampleDataAsync : IAsyncSampleData
         }
     }
 
+
+    /// <summary>
+    /// Asynchronously retrieves an aggregate list of states from the provided asynchronous enumerable of people by calling the GetAggregateListOfStatesGivenPeopleCollectionAsync method and returning the result synchronously.
+    /// </summary>
+    /// <param name="people"></param>
+    /// <returns></returns>
     string IAsyncSampleData.GetAggregateListOfStatesGivenPeopleCollection(IAsyncEnumerable<IPerson> people)
     {
-        throw new NotImplementedException();
+        // Synchronously wait for the async method to complete and return the result
+        return GetAggregateListOfStatesGivenPeopleCollectionAsync(people).GetAwaiter().GetResult();
     }
 }
