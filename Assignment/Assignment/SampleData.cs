@@ -80,7 +80,7 @@ public class SampleData : ISampleData
         return states.Length == 0 ? string.Empty : states.Aggregate((current, next) => $"{current},{next}");
     }
 
-internal class Person : IPerson
+internal sealed class Person : IPerson
 {
     public string FirstName { get; set; } = "";
     public string LastName { get; set; } = "";
@@ -89,7 +89,7 @@ internal class Person : IPerson
     public IAddress Address { get; set; } =
         new Address();
 }
-internal class Address : IAddress
+internal sealed class Address : IAddress
 {
     public string StreetAddress { get; set; } = "";
     public string City { get; set; } = "";
