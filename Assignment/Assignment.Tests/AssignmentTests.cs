@@ -28,7 +28,7 @@ public class AssignmentTests
         var rows = SampleData.CsvRows.ToList();
 
         Assert.IsTrue(rows.Count > 0);
-        Assert.IsFalse(rows.Any(row => row.StartsWith("Id,")));
+        Assert.DoesNotContain(row => row.StartsWith("Id,"), rows);
         Assert.AreEqual("1,Priscilla,Jenyns,pjenyns0@state.gov,7884 Corry Way,Helena,MT,70577", rows[0]);
     }
 
@@ -93,7 +93,7 @@ public class AssignmentTests
             .ToList();
 
         CollectionAssert.AreEqual(expected.Select(person => person.ToString()).ToList(), actual.Select(person => person.ToString()).ToList());
-        Assert.IsTrue(actual.All(person => !string.IsNullOrWhiteSpace(person.State)));
+        Assert.IsTrue(actual.All(static person => !string.IsNullOrWhiteSpace(person.State)));
     }
 
 
