@@ -23,7 +23,7 @@ public class SampleDataAsyncTests
     [TestMethod]
     public async Task CsvRows_ShouldReturnExpectedNumberOfRows()
     {
-        IAsyncSampleData sampleData = new SampleDataAsync();
+        Assignment.SampleDataAsync sampleData = new SampleDataAsync();
         int expectedRowCount = 50; 
         int actualRowCount = 0;
 
@@ -43,7 +43,7 @@ public class SampleDataAsyncTests
     [TestMethod]    
     public async Task GetUniqueSortedListOfStatesGivenCsvRows_ShouldReturnExpectedStates()
     {
-        IAsyncSampleData sampleData = new SampleDataAsync();
+        Assignment.SampleDataAsync sampleData = new SampleDataAsync();
         var expectedStates = new List<string> { "AL", "AZ", "CA","DC","FL","GA", "IN", "KS", "LA", "MD", "MN", "MO", "MT", "NC", "NE", "NH", "NV", "NY", "OR", "PA", "SC", "TN", "TX", "UT", "VA", "WA", "WV" }; 
         var actualStates = new List<string>();
 
@@ -62,7 +62,7 @@ public class SampleDataAsyncTests
     [TestMethod]
     public void GetAggregateSortedListOfStatesUsingCsvRows_ShouldReturnExpectedAggregateString()
     {
-        IAsyncSampleData sampleData = new SampleDataAsync();
+        Assignment.SampleDataAsync sampleData = new SampleDataAsync();
         string expectedAggregate = "AL,AZ,CA,DC,FL,GA,IN,KS,LA,MD,MN,MO,MT,NC,NE,NH,NV,NY,OR,PA,SC,TN,TX,UT,VA,WA,WV";
         string actualAggregate = sampleData.GetAggregateSortedListOfStatesUsingCsvRows();       
 
@@ -77,7 +77,7 @@ public class SampleDataAsyncTests
     [TestMethod]
     public async Task EnumerableOfPeople_ShouldReturnExpectedNumberOfPeople()
     {
-        IAsyncSampleData sampleData = new SampleDataAsync();
+        Assignment.SampleDataAsync sampleData = new SampleDataAsync();
         int expectedCount = 50; 
         int actualCount = 0;
 
