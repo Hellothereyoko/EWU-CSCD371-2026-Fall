@@ -28,7 +28,7 @@ public class SampleDataAsync : IAsyncSampleData
     /// Asynchronously reads CSV rows from the "People.csv" file, skipping the header line, and yields each row as a string.
     /// </summary>
     /// <returns></returns>
-    private async IAsyncEnumerable<string> ReadCsvRows()
+    private static async IAsyncEnumerable<string> ReadCsvRows()
     {
         using var reader = new StreamReader("People.csv");
         await reader.ReadLineAsync(); // Skip header line
