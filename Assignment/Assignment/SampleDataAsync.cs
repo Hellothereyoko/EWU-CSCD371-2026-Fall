@@ -115,7 +115,7 @@ public class SampleDataAsync : IAsyncSampleData
     /// </summary>
     /// <param name="people"></param>
     /// <returns></returns>
-    public async Task<string> GetAggregateListOfStatesGivenPeopleCollection(IAsyncEnumerable<IPerson> people)
+    public async static Task<string> GetAggregateListOfStatesGivenPeopleCollection(IAsyncEnumerable<IPerson> people)
     {
         var states = new HashSet<string>();
         await foreach (var person in people)
