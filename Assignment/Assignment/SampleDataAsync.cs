@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using static Assignment.SampleData;
 
 
@@ -97,10 +98,15 @@ public class SampleDataAsync : IAsyncSampleData
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public IAsyncEnumerable<(string FirstName, string LastName)> FilterByEmailAddress(Predicate<string> filter)
+    public async IAsyncEnumerable<(string FirstName, string LastName)> FilterByEmailAddress(Predicate<string> filter)
     {
-        throw new NotImplementedException();
+        await foreach (var person in People)
+        {
+            if (filter(person.EmailAddress))
+            {
+                yield return (person.FirstName, person.LastName);
+            }
+        }
     }
 
 
@@ -109,11 +115,18 @@ public class SampleDataAsync : IAsyncSampleData
     /// </summary>
     /// <param name="people"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public string GetAggregateListOfStatesGivenPeopleCollection(IAsyncEnumerable<IPerson> people)
+    public async Task<string> GetAggregateListOfStatesGivenPeopleCollection(IAsyncEnumerable<IPerson> people)
     {
-        throw new NotImplementedException();
+        var states = new HashSet<string>();
+        await foreach (var person in people)
+        {
+            if (person.Address != null && !string.IsNullOrEmpty(person.Address.State))
+            {
+                states.Add(person.Address.State);
+            }
+        }
 
+        return string.Join(",", states.OrderBy(s => s));
     }
 
     
@@ -155,5 +168,10 @@ public class SampleDataAsync : IAsyncSampleData
                 }
             };
         }
+    }
+
+    string IAsyncSampleData.GetAggregateListOfStatesGivenPeopleCollection(IAsyncEnumerable<IPerson> people)
+    {
+        throw new NotImplementedException();
     }
 }
