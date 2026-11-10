@@ -89,4 +89,9 @@ public class SampleDataAsyncTests
         Assert.AreEqual(expectedCount, actualCount);
     }
 
+
+    // Missing coverage for lines:
+
+    //102 & 103: FilterByEmailAddress(Predicate<string> filter) method
+    //114 & 115: GetAggregateListOfStatesGivenPeopleCollection(IAsyncEnumerable<IPerson> people) method
 }
