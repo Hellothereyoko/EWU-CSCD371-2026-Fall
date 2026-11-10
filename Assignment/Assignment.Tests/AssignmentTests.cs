@@ -28,7 +28,7 @@ public class AssignmentTests
         var rows = SampleData.CsvRows.ToList();
 
         Assert.IsTrue(rows.Count > 0);
-        Assert.DoesNotContain(static row => row.StartsWith("Id,"), rows);
+        Assert.DoesNotContain(static row => row.StartsWith("Id,", System.StringComparison.Ordinal), rows);
         Assert.AreEqual("1,Priscilla,Jenyns,pjenyns0@state.gov,7884 Corry Way,Helena,MT,70577", rows[0]);
     }
 
@@ -104,7 +104,7 @@ public class AssignmentTests
     [TestMethod]
     public void FilterByEmailAddress_ReturnsPeopleMatchingThePredicate()
     {
-        var actual = SampleData.FilterByEmailAddress(static email => email.EndsWith("@state.gov")).ToList();
+        var actual = SampleData.FilterByEmailAddress(static email => email.EndsWith("@state.gov", System.StringComparison.Ordinal)).ToList();
 
         Assert.AreEqual(1, actual.Count);
         Assert.AreEqual(("Priscilla", "Jenyns"), actual[0]);
