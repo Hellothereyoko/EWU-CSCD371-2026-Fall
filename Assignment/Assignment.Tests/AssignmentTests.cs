@@ -28,7 +28,7 @@ public class AssignmentTests
         var rows = SampleData.CsvRows.ToList();
 
         Assert.IsTrue(rows.Count > 0);
-        Assert.DoesNotContain(row => row.StartsWith("Id,"), rows);
+        Assert.DoesNotContain(static row => row.StartsWith("Id,"), rows);
         Assert.AreEqual("1,Priscilla,Jenyns,pjenyns0@state.gov,7884 Corry Way,Helena,MT,70577", rows[0]);
     }
 
@@ -42,9 +42,9 @@ public class AssignmentTests
     {
         var actual = SampleData.GetUniqueSortedListOfStatesGivenCsvRows().ToArray();
         var expected = SampleData.CsvRows
-            .Select(row => row.Split(',')[6])
+            .Select(static row => row.Split(',')[6])
             .Distinct()
-            .OrderBy(state => state)
+            .OrderBy(static state => state)
             .ToArray();
 
         CollectionAssert.AreEqual(expected, actual);
@@ -73,12 +73,12 @@ public class AssignmentTests
     public void People_AreSortedByStateCityAndZip_AndHavePopulatedAddressDetails()
     {
         var actual = SampleData.People
-            .Select(person => (person.FirstName, person.LastName, person.EmailAddress, person.Address.StreetAddress, person.Address.City, person.Address.State, person.Address.Zip))
+            .Select(static person => (person.FirstName, person.LastName, person.EmailAddress, person.Address.StreetAddress, person.Address.City, person.Address.State, person.Address.Zip))
             .ToList();
 
         var expected = SampleData.CsvRows
-            .Select(row => row.Split(','))
-            .Select(columns => (
+            .Select(static row => row.Split(','))
+            .Select(static columns => (
                 FirstName: columns[1],
                 LastName: columns[2],
                 EmailAddress: columns[3],
@@ -86,13 +86,13 @@ public class AssignmentTests
                 City: columns[5],
                 State: columns[6],
                 Zip: columns[7]))
-            .OrderBy(person => person.State)
-            .ThenBy(person => person.City)
-            .ThenBy(person => person.Zip)
-            .Select(person => (person.FirstName, person.LastName, person.EmailAddress, person.StreetAddress, person.City, person.State, person.Zip))
+            .OrderBy(static person => person.State)
+            .ThenBy(static person => person.City)
+            .ThenBy(static person => person.Zip)
+            .Select(static person => (person.FirstName, person.LastName, person.EmailAddress, person.StreetAddress, person.City, person.State, person.Zip))
             .ToList();
 
-        CollectionAssert.AreEqual(expected.Select(person => person.ToString()).ToList(), actual.Select(person => person.ToString()).ToList());
+        CollectionAssert.AreEqual(expected.Select(static person => person.ToString()).ToList(), actual.Select(static person => person.ToString()).ToList());
         Assert.IsTrue(actual.All(static person => !string.IsNullOrWhiteSpace(person.State)));
     }
 
@@ -104,7 +104,7 @@ public class AssignmentTests
     [TestMethod]
     public void FilterByEmailAddress_ReturnsPeopleMatchingThePredicate()
     {
-        var actual = SampleData.FilterByEmailAddress(email => email.EndsWith("@state.gov")).ToList();
+        var actual = SampleData.FilterByEmailAddress(static email => email.EndsWith("@state.gov")).ToList();
 
         Assert.AreEqual(1, actual.Count);
         Assert.AreEqual(("Priscilla", "Jenyns"), actual[0]);
@@ -122,10 +122,10 @@ public class AssignmentTests
 
         var actual = SampleData.GetAggregateListOfStatesGivenPeopleCollection(people);
         var expected = people
-            .Select(person => person.Address.State)
+            .Select(static person => person.Address.State)
             .Distinct()
-            .OrderBy(state => state)
-            .Aggregate((current, next) => $"{current},{next}");
+            .OrderBy(static state => state)
+            .Aggregate(static (current, next) => $"{current},{next}");
 
         Assert.AreEqual(expected, actual);
     }
