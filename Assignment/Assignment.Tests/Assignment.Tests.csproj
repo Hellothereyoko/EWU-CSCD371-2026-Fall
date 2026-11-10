@@ -9,6 +9,7 @@
     <Compile Include="AssemblyAttributes.cs" />
     <Compile Include="AssignmentTests.cs" />
     <Compile Include="InterfaceTests.cs" />
+    <Compile Include="SampleDataAsyncTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
