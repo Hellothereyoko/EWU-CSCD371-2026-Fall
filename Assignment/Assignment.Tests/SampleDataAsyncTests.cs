@@ -119,7 +119,7 @@ public class SampleDataAsyncTests
         SampleDataAsync sampleData = new();
         int actualCount = 0;
 
-        await foreach ((string FirstName, string LastName) person in sampleData.FilterByEmailAddress(static email => email.Contains("@")))
+        await foreach (var person in sampleData.FilterByEmailAddress(static email => email.Contains('@')))
         {
             actualCount++;
         }
