@@ -3,6 +3,7 @@ using System.Linq;
 namespace Assignment.Tests;
 
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Assignment;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -80,7 +81,7 @@ public class SampleDataAsyncTests
         int expectedCount = 50; 
         int actualCount = 0;
 
-        await foreach (var person in sampleData.People)
+        await foreach (IPerson person in sampleData.People)
         {
             actualCount++;
         }
@@ -100,7 +101,7 @@ public class SampleDataAsyncTests
         int expectedCount = 50; 
         int actualCount = 0;
 
-        await foreach (var person in sampleData.People)
+        await foreach (IPerson person in sampleData.People)
         {
             actualCount++;
         }
@@ -118,7 +119,7 @@ public class SampleDataAsyncTests
         SampleDataAsync sampleData = new();
         int actualCount = 0;
 
-        await foreach (var person in sampleData.FilterByEmailAddress(static email => email.Contains("@")))
+        await foreach ((string FirstName, string LastName) person in sampleData.FilterByEmailAddress(static email => email.Contains("@")))
         {
             actualCount++;
         }
@@ -137,7 +138,7 @@ public class SampleDataAsyncTests
         SampleDataAsync sampleData = new();
         string expectedAggregate = "AL,AZ,CA,DC,FL,GA,IN,KS,LA,MD,MN,MO,MT,NC,NE,NH,NV,NY,OR,PA,SC,TN,TX,UT,VA,WA,WV";
 
-        var method = typeof(SampleDataAsync).GetMethod(
+        MethodInfo? method = typeof(SampleDataAsync).GetMethod(
             "GetAggregateListOfStatesGivenPeopleCollectionAsync",
             System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
 
