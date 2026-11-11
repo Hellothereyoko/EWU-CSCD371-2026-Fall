@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Assignment.Tests;
 
 using System.Collections.Generic;
@@ -116,7 +118,7 @@ public class SampleDataAsyncTests
         SampleDataAsync sampleData = new();
         int actualCount = 0;
 
-        await foreach (var person in sampleData.FilterByEmailAddress(email => email.Contains("@")))
+        await foreach (var person in sampleData.FilterByEmailAddress(static email => email.Contains("@")))
         {
             actualCount++;
         }
