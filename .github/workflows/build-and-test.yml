@@ -14,3 +14,4 @@ jobs:
       working-directory: ./Assignment
       check-formatting: false
       add-analyzers: false
+      test-timeout: 50s
