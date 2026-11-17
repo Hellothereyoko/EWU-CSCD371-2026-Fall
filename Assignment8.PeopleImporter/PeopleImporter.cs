@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Assignment8.PeopleImporter;
+namespace Assignment8.ResilientImporter;
 
 public delegate string? PersonValidator(Person person);
 
@@ -8,9 +8,7 @@ public delegate string? PersonValidator(Person person);
 /// Imports CSV records from a TextReader. The importer owns the reader passed to it
 /// and disposes that reader when <see cref="Dispose"/> is called.
 /// </summary>
-#pragma warning disable CA1724
 public sealed class PeopleImporter : IDisposable
-#pragma warning restore CA1724
 {
     private static readonly string[] Header =
     [
@@ -33,11 +31,27 @@ public sealed class PeopleImporter : IDisposable
         this.reader = reader;
     }
 
-#pragma warning disable CA1062
     public IReadOnlyList<Person> Import(
         ImportMode mode,
-        Action<InvalidPersonRecordException>? invalidRecordCallback = null,
         PersonValidator? validationDelegate = null)
+        => ImportCore(mode, null, validationDelegate);
+
+    public IReadOnlyList<Person> Import(
+        ImportMode mode,
+        Action<InvalidPersonRecordException> invalidRecordCallback,
+        PersonValidator? validationDelegate = null)
+    {
+        ArgumentNullException.ThrowIfNull(
+            invalidRecordCallback,
+            nameof(invalidRecordCallback));
+
+        return ImportCore(mode, invalidRecordCallback, validationDelegate);
+    }
+
+    private List<Person> ImportCore(
+        ImportMode mode,
+        Action<InvalidPersonRecordException>? invalidRecordCallback,
+        PersonValidator? validationDelegate)
     {
         ThrowIfDisposed();
         if (!Enum.IsDefined(mode))
@@ -50,10 +64,16 @@ public sealed class PeopleImporter : IDisposable
             ArgumentNullException.ThrowIfNull(invalidRecordCallback, nameof(invalidRecordCallback));
         }
 
-        Action<InvalidPersonRecordException>? skipCallback =
-            mode == ImportMode.SkipInvalid
-                ? invalidRecordCallback
-                : null;
+        Action<InvalidPersonRecordException> skipCallback;
+        if (mode == ImportMode.SkipInvalid)
+        {
+            ArgumentNullException.ThrowIfNull(invalidRecordCallback, nameof(invalidRecordCallback));
+            skipCallback = invalidRecordCallback;
+        }
+        else
+        {
+            skipCallback = static _ => { };
+        }
 
         var header = reader.ReadLine()
             ?? throw CreateLineException(1, string.Empty, new FormatException("The CSV header is missing."));
@@ -72,7 +92,7 @@ public sealed class PeopleImporter : IDisposable
             Person person;
             try
             {
-                person = ParsePerson(rawLine, lineNumber, seenIds);
+                person = ParsePerson(rawLine, seenIds);
             }
             catch (Exception exception) when (
                 exception is FormatException
@@ -86,7 +106,7 @@ public sealed class PeopleImporter : IDisposable
                     throw invalid;
                 }
 
-                skipCallback!(invalid);
+                skipCallback(invalid);
                 continue;
             }
 
@@ -103,7 +123,7 @@ public sealed class PeopleImporter : IDisposable
                     throw invalid;
                 }
 
-                skipCallback!(invalid);
+                skipCallback(invalid);
                 continue;
             }
 
@@ -112,7 +132,6 @@ public sealed class PeopleImporter : IDisposable
 
         return accepted;
     }
-#pragma warning restore CA1062
 
     public void Dispose()
     {
@@ -125,7 +144,7 @@ public sealed class PeopleImporter : IDisposable
         disposed = true;
     }
 
-    private static Person ParsePerson(string rawLine, int lineNumber, HashSet<int> seenIds)
+    private static Person ParsePerson(string rawLine, HashSet<int> seenIds)
     {
         var fields = rawLine.Split(',');
         if (fields.Length != Header.Length)
@@ -146,11 +165,6 @@ public sealed class PeopleImporter : IDisposable
 
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id, nameof(id));
 
-        if (!seenIds.Add(id))
-        {
-            throw new InvalidOperationException($"Id {id.ToString(CultureInfo.InvariantCulture)} is duplicated.");
-        }
-
         if (Array.Exists(fields, string.IsNullOrWhiteSpace))
         {
             throw new ArgumentException("Required CSV values cannot be missing.", nameof(rawLine));
@@ -169,6 +183,11 @@ public sealed class PeopleImporter : IDisposable
         if (!fields[7].All(char.IsAsciiDigit))
         {
             throw new ArgumentException("Zip must contain only ASCII digits.", nameof(rawLine));
+        }
+
+        if (!seenIds.Add(id))
+        {
+            throw new InvalidOperationException($"Id {id.ToString(CultureInfo.InvariantCulture)} is duplicated.");
         }
 
         var address = new Address(fields[4], fields[5], fields[6], fields[7]);

@@ -1,4 +1,4 @@
-namespace Assignment8.PeopleImporter;
+namespace Assignment8.ResilientImporter;
 
 public sealed class Person
 {

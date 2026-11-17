@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Assignment8.PeopleImporter.Tests;
+namespace Assignment8.ResilientImporter.Tests;
 
 public sealed class PeopleImporterTests
 {
@@ -122,6 +122,23 @@ public sealed class PeopleImporterTests
     }
 
     [Fact]
+    public void RejectedRecordDoesNotReserveItsIdForSkipInvalidImport()
+    {
+        var records = new List<InvalidPersonRecordException>();
+        using var importer = new PeopleImporter(CreateReader(
+            $"{Header}{Environment.NewLine}" +
+            $"12,Missing,Email,bad,1 Street,City,WA,99001{Environment.NewLine}" +
+            "12,Valid,Person,valid@example.com,2 Street,City,WA,99002"));
+
+        var people = importer.Import(
+            ImportMode.SkipInvalid,
+            records.Add);
+
+        Assert.Equal(12, Assert.Single(people).Id);
+        Assert.Single(records);
+    }
+
+    [Fact]
     public void MissingRequiredValuePreservesArgumentException()
     {
         using var importer = new PeopleImporter(CreateReader(
@@ -188,7 +205,7 @@ public sealed class PeopleImporterTests
         var thrown = Assert.Throws<InvalidOperationException>(
             () => importer.Import(
                 ImportMode.SkipInvalid,
-                _ => throw callbackException));
+                (Action<InvalidPersonRecordException>)(_ => throw callbackException)));
 
         Assert.Same(callbackException, thrown);
     }
@@ -247,6 +264,23 @@ public sealed class PeopleImporterTests
 
         Assert.Equal(2, exception.LineNumber);
         Assert.IsType<InvalidOperationException>(exception.InnerException);
+    }
+
+    [Fact]
+    public void CustomValidationDelegateIsHandledInSkipInvalidMode()
+    {
+        var records = new List<InvalidPersonRecordException>();
+        using var importer = new PeopleImporter(CreateReader(
+            $"{Header}{Environment.NewLine}" +
+            "13,Rejected,Person,rejected@example.com,1 Main St,City,WA,98001"));
+
+        var people = importer.Import(
+            ImportMode.SkipInvalid,
+            records.Add,
+            _ => "Rejected by caller");
+
+        Assert.Empty(people);
+        Assert.Equal(2, Assert.Single(records).LineNumber);
     }
 
     [Fact]

@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Assignment8.PeopleImporter;
+namespace Assignment8.ResilientImporter;
 
 public sealed class InvalidPersonRecordException : Exception
 {
