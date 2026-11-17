@@ -1,5 +1,10 @@
 namespace Assignment8.ResilientImporter;
 
+
+
+/// <summary>
+/// Person class that holds shared props of what the data defines as a person 
+/// </summary>
 public sealed class Person
 {
     public Person(int id, string firstName, string lastName, string email, Address address)
@@ -17,6 +22,10 @@ public sealed class Person
         Address = address;
     }
 
+
+    /// <summary>
+    /// Getter and setter blocks for the attributes
+    /// </summary>
     public int Id { get; }
 
     public string FirstName { get; }

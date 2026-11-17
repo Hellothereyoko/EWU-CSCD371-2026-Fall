@@ -2,9 +2,13 @@ using System.Globalization;
 
 namespace Assignment8.ResilientImporter;
 
+
+/// <summary>
+/// Handles exceptions for when the person data doesn't match the record scheme
+/// </summary>
 public sealed class InvalidPersonRecordException : Exception
 {
-    public InvalidPersonRecordException()
+        public InvalidPersonRecordException()
         : this("The person record is invalid.", 0, string.Empty)
     {
     }

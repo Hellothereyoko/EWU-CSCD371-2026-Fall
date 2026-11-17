@@ -2,11 +2,17 @@ using System.Text;
 
 namespace Assignment8.ResilientImporter.Tests;
 
+/// <summary>
+/// Tests importing of people from the csv from unstandard data. Tests data harmonization and edge cases...
+/// </summary>
 public sealed class PeopleImporterTests
 {
     private const string Header =
         "Id,FirstName,LastName,Email,StreetAddress,City,State,Zip";
 
+    /// <summary>
+    /// Test method tests that a harmonized data point produces no errs
+    /// </summary>
     [Fact]
     public void ImportSucceedsForValidStringReader()
     {
@@ -27,6 +33,10 @@ public sealed class PeopleImporterTests
         Assert.Equal("99001", person.Address.Zip);
     }
 
+
+    /// <summary>
+    ///  tests import w/ fake data and rm after successful addition
+    /// </summary>
     [Fact]
     public void ImportSucceedsForTemporaryFileAndDeletesIt()
     {
@@ -54,6 +64,9 @@ public sealed class PeopleImporterTests
         Assert.False(File.Exists(path));
     }
 
+    /// <summary>
+    /// Import data from assn 7 csv. This was auto-gen by AI so that I didn't have to manually mv data from assn 7...
+    /// </summary>
     [Fact]
     public void ImportSucceedsForAssignment7PeopleCsv()
     {
@@ -68,6 +81,11 @@ public sealed class PeopleImporterTests
         Assert.Equal(50, people[49].Id);
     }
 
+
+    /// <summary>
+    /// Fast fail testing (enum switch test). I want to see what happens when fast fail is enabled.
+    /// Expected behavior should make this test pass 
+    /// </summary>
     [Fact]
     public void FailFastThrowsAtFirstBadLineAndWrapsInnerException()
     {
@@ -84,6 +102,10 @@ public sealed class PeopleImporterTests
         Assert.IsType<FormatException>(exception.InnerException);
     }
 
+
+    /// <summary>
+    /// Other enum switch test to see if it produces expected behavior of rejecting a malformed record.
+    /// </summary>
     [Fact]
     public void SkipInvalidReturnsValidPeopleAndReportsEveryRejectedRecord()
     {
@@ -106,6 +128,10 @@ public sealed class PeopleImporterTests
         Assert.All(records, record => Assert.NotNull(record.InnerException));
     }
 
+
+    /// <summary>
+    /// Reject duplicate data entry. This test proved to be the bane of my existence...
+    /// </summary>
     [Fact]
     public void DuplicateIdIsRejectedAsInvalidOperationException()
     {
@@ -121,6 +147,10 @@ public sealed class PeopleImporterTests
         Assert.IsType<InvalidOperationException>(exception.InnerException);
     }
 
+
+    /// <summary>
+    /// Reject record doesn't get an ID (ideally...)
+    /// </summary>
     [Fact]
     public void RejectedRecordDoesNotReserveItsIdForSkipInvalidImport()
     {
@@ -138,6 +168,10 @@ public sealed class PeopleImporterTests
         Assert.Single(records);
     }
 
+
+    /// <summary>
+    /// Missing value in data produces except
+    /// </summary>
     [Fact]
     public void MissingRequiredValuePreservesArgumentException()
     {
@@ -151,6 +185,9 @@ public sealed class PeopleImporterTests
         Assert.IsType<ArgumentException>(exception.InnerException);
     }
 
+    /// <summary>
+    /// Constructor enforces correct name in record 
+    /// </summary>
     [Fact]
     public void ConstructorAndMethodArgumentsHaveCorrectNames()
     {
@@ -181,6 +218,9 @@ public sealed class PeopleImporterTests
                 () => new Person(1, "Ada", "Lovelace", "ada@example.com", null!)).ParamName);
     }
 
+    /// <summary>
+    /// Intentionally get the reader to fail to see if it produces an except like its supposed to...
+    /// </summary>
     [Fact]
     public void ReaderIOExceptionPropagatesAsSameInstance()
     {
@@ -194,6 +234,9 @@ public sealed class PeopleImporterTests
         Assert.Same(ioException, thrown);
     }
 
+    /// <summary>
+    /// Test callback exception. Read method for more details
+    /// </summary>
     [Fact]
     public void CallbackExceptionPropagatesAsSameInstance()
     {
@@ -210,6 +253,9 @@ public sealed class PeopleImporterTests
         Assert.Same(callbackException, thrown);
     }
 
+    /// <summary>
+    /// Dispose reader after import for mem efficiency test
+    /// </summary>
     [Fact]
     public void DisposesReaderAfterSuccessfulImport()
     {
@@ -224,6 +270,9 @@ public sealed class PeopleImporterTests
         Assert.True(reader.IsDisposed);
     }
 
+    /// <summary>
+    /// Failed import should also produce same behavior 
+    /// </summary>
     [Fact]
     public void DisposesReaderAfterFailedImport()
     {
@@ -239,6 +288,11 @@ public sealed class PeopleImporterTests
         Assert.True(reader.IsDisposed);
     }
 
+
+    /// <summary>
+    /// Ensure disposal isnt invoked again after JUST being disposed 
+    /// A safeguard to ensure this opens after re-execution
+    /// </summary>
     [Fact]
     public void UseAfterDisposalThrowsObjectDisposedException()
     {
@@ -250,6 +304,10 @@ public sealed class PeopleImporterTests
             () => importer.Import(ImportMode.FailFast));
     }
 
+
+    /// <summary>
+    ///  Custom delegation is handled as expected...
+    /// </summary>
     [Fact]
     public void CustomValidationDelegateIsHandledInSelectedMode()
     {
@@ -266,6 +324,9 @@ public sealed class PeopleImporterTests
         Assert.IsType<InvalidOperationException>(exception.InnerException);
     }
 
+    /// <summary>
+    /// Same thing just different mode
+    /// </summary>
     [Fact]
     public void CustomValidationDelegateIsHandledInSkipInvalidMode()
     {
@@ -283,6 +344,9 @@ public sealed class PeopleImporterTests
         Assert.Equal(2, Assert.Single(records).LineNumber);
     }
 
+    /// <summary>
+    /// Validation exception props unwrapped data 
+    /// </summary>
     [Fact]
     public void UnexpectedValidationExceptionPropagatesUnwrapped()
     {
@@ -299,6 +363,9 @@ public sealed class PeopleImporterTests
         Assert.Same(unexpected, thrown);
     }
 
+    /// <summary>
+    /// Filter failed exception for non-valid record. (DNE, Malformed, etc...)
+    /// </summary>
     [Fact]
     public void WhenFilterDoesNotCatchUnexpectedRecordException()
     {
@@ -315,6 +382,11 @@ public sealed class PeopleImporterTests
         Assert.Same(unexpected, thrown);
     }
 
+    /// <summary>
+    /// String writer test to see if data is mk correct
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
     private static StringReader CreateReader(string text)
         => new StringReader(text);
 
@@ -335,6 +407,10 @@ public sealed class PeopleImporterTests
         }
     }
 
+    /// <summary>
+    /// Tests that exception data is printed and override functions
+    /// </summary>
+    /// <param name="exception"></param>
     private sealed class ThrowingTextReader(Exception exception) : TextReader
     {
         public override string? ReadLine()
@@ -346,6 +422,10 @@ public sealed class PeopleImporterTests
         }
     }
 
+    /// <summary>
+    /// Tests to ensure the text reader is correctly tracking and disposing when approp.
+    /// </summary>
+    /// <param name="text"></param>
     private sealed class TrackingTextReader(string text) : TextReader
     {
         private readonly Queue<string?> lines =
@@ -363,6 +443,11 @@ public sealed class PeopleImporterTests
             return lines.Dequeue();
         }
 
+
+        /// <summary>
+        /// Disposal override test. I need to make sure this overrides even outside of test data
+        /// </summary>
+        /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
             IsDisposed = true;

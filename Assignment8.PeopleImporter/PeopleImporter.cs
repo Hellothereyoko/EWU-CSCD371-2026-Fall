@@ -10,6 +10,10 @@ public delegate string? PersonValidator(Person person);
 /// </summary>
 public sealed class PeopleImporter : IDisposable
 {
+
+    /// <summary>
+    /// The expected header for the CSV file. The importer will throw an exception if the header is missing or invalid.
+    /// </summary>
     private static readonly string[] Header =
     [
         "Id",
@@ -25,17 +29,37 @@ public sealed class PeopleImporter : IDisposable
     private readonly TextReader reader;
     private bool disposed;
 
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PeopleImporter"/> class with the specified <paramref name="reader"/>.
+    /// </summary>
+    /// <param name="reader"></param>
     public PeopleImporter(TextReader reader)
     {
         ArgumentNullException.ThrowIfNull(reader, nameof(reader));
         this.reader = reader;
     }
 
+
+    /// <summary>
+    /// Imports CSV records from the reader. The importer will throw an exception on the first invalid record encountered.
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <param name="validationDelegate"></param>
+    /// <returns></returns>
     public IReadOnlyList<Person> Import(
         ImportMode mode,
         PersonValidator? validationDelegate = null)
         => ImportCore(mode, null, validationDelegate);
 
+
+    /// <summary>
+    /// Imports CSV records from the reader. The importer will invoke the <paramref name="invalidRecordCallback"/> for each invalid record encountered.
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <param name="invalidRecordCallback"></param>
+    /// <param name="validationDelegate"></param>
+    /// <returns></returns>
     public IReadOnlyList<Person> Import(
         ImportMode mode,
         Action<InvalidPersonRecordException> invalidRecordCallback,
@@ -48,6 +72,15 @@ public sealed class PeopleImporter : IDisposable
         return ImportCore(mode, invalidRecordCallback, validationDelegate);
     }
 
+
+    /// <summary>
+    /// Determines datapoint validity to ensure compliance with record system
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <param name="invalidRecordCallback"></param>
+    /// <param name="validationDelegate"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     private List<Person> ImportCore(
         ImportMode mode,
         Action<InvalidPersonRecordException>? invalidRecordCallback,
@@ -133,6 +166,10 @@ public sealed class PeopleImporter : IDisposable
         return accepted;
     }
 
+
+    /// <summary>
+    /// Dispose method to save my arms the trouble of rewriting additional code 
+    /// </summary>
     public void Dispose()
     {
         if (disposed)
@@ -144,6 +181,17 @@ public sealed class PeopleImporter : IDisposable
         disposed = true;
     }
 
+
+    /// <summary>
+    /// This function is pretty self-explainatory. It parses the person in the dataset...
+    /// TODO: Fix this god awful unit test structure (I made it in 10 min)
+    /// </summary>
+    /// <param name="rawLine"></param>
+    /// <param name="seenIds"></param>
+    /// <returns></returns>
+    /// <exception cref="FormatException"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
     private static Person ParsePerson(string rawLine, HashSet<int> seenIds)
     {
         var fields = rawLine.Split(',');
@@ -194,6 +242,11 @@ public sealed class PeopleImporter : IDisposable
         return new Person(id, fields[1], fields[2], fields[3], address);
     }
 
+
+    /// <summary>
+    /// This function validates the header of the data in the csv
+    /// </summary>
+    /// <param name="header"></param>
     private static void ValidateHeader(string header)
     {
         var fields = header.Split(',');
@@ -218,6 +271,10 @@ public sealed class PeopleImporter : IDisposable
         }
     }
 
+
+    /// <summary>
+    /// Error throw function triggered by dispose function
+    /// </summary>
     private void ThrowIfDisposed()
         => ObjectDisposedException.ThrowIf(disposed, this);
 
