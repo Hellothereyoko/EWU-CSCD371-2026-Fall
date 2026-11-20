@@ -206,7 +206,7 @@ public sealed class PeopleImporter : IDisposable
             fields[index] = fields[index].Trim();
         }
 
-        if (!int.TryParse(fields[0], NumberStyles.None, CultureInfo.InvariantCulture, out var id))
+        if (!int.TryParse(fields[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
         {
             throw new FormatException("Id must be a base-10 integer.");
         }
