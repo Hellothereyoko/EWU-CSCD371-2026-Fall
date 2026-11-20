@@ -454,4 +454,252 @@ public sealed class PeopleImporterTests
             base.Dispose(disposing);
         }
     }
+    /// <summary>
+    /// Tests the that the Default constructor of InvalidPersonRecordException sets the correct and expected default values. 
+    /// </summary>
+    [Fact]
+    public void DefaultConstructorSetsExpectedDefaults()
+    {
+        var exception = new InvalidPersonRecordException();
+
+        Assert.Equal("The person record is invalid.", exception.Message);
+        Assert.Equal(0, exception.LineNumber);
+        Assert.Equal(string.Empty, exception.RawLine);
+        Assert.Null(exception.InnerException);
+    }
+    /// <summary>
+    /// Tests that the Message Constructor of InvalidPersonRecordException sets message correctly.
+    /// </summary>
+    [Fact]
+    public void MessageConstructorSetsMessage()
+    {
+        var exception = new InvalidPersonRecordException("Custom message");
+
+        Assert.Equal("Custom message", exception.Message);
+        Assert.Equal(0, exception.LineNumber);
+        Assert.Equal(string.Empty, exception.RawLine);
+        Assert.Null(exception.InnerException);
+    }
+    /// <summary>
+    /// Tests that the Message and InnerException Constructor of InvalidPersonRecordException sets message and inner exception correctly.
+    /// </summary>
+    [Fact]
+    public void MessageAndInnerExceptionConstructorSetsProperties()
+    {
+        var innerException = new FormatException("Inner exception");
+        var exception = new InvalidPersonRecordException("Custom message", innerException);
+
+        Assert.Equal("Custom message", exception.Message);
+        Assert.Equal(0, exception.LineNumber);
+        Assert.Equal(string.Empty, exception.RawLine);
+        Assert.Same(innerException, exception.InnerException);
+    }
+    /// <summary>
+    /// Tests that the Constructor throws when Inner exception is null. This is to ensure that the exception is always wrapped with a valid inner exception.
+    /// </summary>
+    [Fact]
+    public void ConstructorThrowsWhenInnerExceptionIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new InvalidPersonRecordException("Custom message", null!));
+    }
+    /// <summary>
+    /// Tests that the ToString method of InvalidPersonRecordException contains LineNumber and RawLine properties. This is to ensure that the exception provides useful information for debugging.
+    /// </summary>
+    [Fact]
+    public void ToStringContainsLineNumberAndRawLine()
+    {
+         var exception = new InvalidPersonRecordException(
+        "Bad Record",
+        42,
+        "bad,data");
+
+        var toStringOutput = exception.ToString();
+
+        Assert.Contains("LineNumber: 42", toStringOutput, StringComparison.Ordinal);
+        Assert.Contains("RawLine: bad,data", toStringOutput, StringComparison.Ordinal);
+    }
+    /// <summary>
+    /// PeopleImporter tests that tests for Missing header
+    /// </summary>
+    [Fact]
+    public void MissingHeaderThrowsInvalidPersonRecordException()
+    {
+    using var importer = new PeopleImporter(
+        new StringReader(string.Empty));
+
+    var exception = Assert.Throws<InvalidPersonRecordException>(
+        () => importer.Import(ImportMode.FailFast));
+
+    Assert.Equal(1, exception.LineNumber);
+    Assert.IsType<FormatException>(exception.InnerException);
+    }
+    /// <summary>
+    /// Checks if the header of PeopleImporter Has the correct number of columns. If not, it throws an InvalidPersonRecordException.
+    /// </summary>
+    [Fact]
+    public void HeaderWithIncorrectNumberOfColumnsThrowsInvalidPersonRecordException()
+    {
+        using var importer = new PeopleImporter(
+            new StringReader("Id,FirstName,LastName,Email,StreetAddress,City,State"));
+
+        var exception = Assert.Throws<InvalidPersonRecordException>(
+            () => importer.Import(ImportMode.FailFast));
+
+        Assert.Equal(1, exception.LineNumber);
+        Assert.IsType<FormatException>(exception.InnerException);
+    }
+    /// <summary>
+    /// Checks if the Header has the correct name. If not, it throws an InvalidPersonRecordException.
+    /// </summary>
+    [Fact]
+    public void HeaderWithIncorrectNameThrowsInvalidPersonRecordException()
+    {
+        using var importer = new PeopleImporter(
+            new StringReader("Id,FirstName,LastName,Email,StreetAddress,City,State,ZipCode"));
+
+        var exception = Assert.Throws<InvalidPersonRecordException>(
+            () => importer.Import(ImportMode.FailFast));
+
+        Assert.Equal(1, exception.LineNumber);
+        Assert.IsType<FormatException>(exception.InnerException);
+    }
+    /// <summary>
+    /// Makes sure zeroId is rejected as invalid. This is to ensure that the Id property of Person is always a positive integer.
+    /// </summary>
+    [Fact]
+    public void ZeroIdIsRejectedAsInvalid()
+    {
+    using var importer = new PeopleImporter(CreateReader(
+        $"{Header}{Environment.NewLine}" +
+        "0,Ada,Lovelace,ada@example.com,Street,City,WA,99001"));
+
+    var exception = Assert.Throws<InvalidPersonRecordException>(
+        () => importer.Import(ImportMode.FailFast));
+
+    Assert.IsType<ArgumentOutOfRangeException>(
+        exception.InnerException);
+    }
+    /// <summary>
+    /// Makes sure negativeId is rejected as invalid. This is to ensure that the Id property of Person is always a positive integer.
+    /// </summary>
+    [Fact]
+    public void NegativeIdIsRejectedAsInvalid()
+    {
+    using var importer = new PeopleImporter(CreateReader(
+        $"{Header}{Environment.NewLine}" +
+        "-1,Ada,Lovelace,ada@example.com,Street,City,WA,99001"));
+
+    var exception = Assert.Throws<InvalidPersonRecordException>(
+        () => importer.Import(ImportMode.FailFast));
+
+    Assert.IsType<ArgumentOutOfRangeException>(
+        exception.InnerException);
+    }
+    /// <summary>
+    /// Ensures that the State must consist of two letters.
+    /// </summary>
+    [Fact]
+    public void StateMustBeTwoLetters()
+    {
+        using var importer = new PeopleImporter(CreateReader(
+            $"{Header}{Environment.NewLine}" +
+            "1,Ada,Lovelace,ada@example.com,Street,City,Washington,99001"));
+
+        var exception = Assert.Throws<InvalidPersonRecordException>(
+            () => importer.Import(ImportMode.FailFast));
+
+        Assert.Equal(2, exception.LineNumber);
+        Assert.IsType<ArgumentException>(
+            exception.InnerException);
+    
+    }
+    /// <summary>
+    /// Ensures that the Email must be in a valid format.
+    /// </summary>
+    [Fact]
+    public void EmailMustBeValid()
+    {
+        using var importer = new PeopleImporter(CreateReader(
+            $"{Header}{Environment.NewLine}" +
+            "1,Ada,Lovelace,invalid-email,Street,City,WA,99001"));
+
+        var exception = Assert.Throws<InvalidPersonRecordException>(
+            () => importer.Import(ImportMode.FailFast));
+
+        Assert.Equal(2, exception.LineNumber);
+        Assert.IsType<ArgumentException>(
+            exception.InnerException);
+    
+    }
+    /// <summary>
+    /// Ensures that the FirstName and LastName must not be empty or whitespace.
+    /// </summary>
+    [Fact]
+    public void FirstNameAndLastNameMustNotBeEmptyOrWhitespace()
+    {
+        using var importer = new PeopleImporter(CreateReader(
+            $"{Header}{Environment.NewLine}" +
+            "1, , ,ada@example.com,Street,City,WA,99001"));
+
+        var exception = Assert.Throws<InvalidPersonRecordException>(
+            () => importer.Import(ImportMode.FailFast));
+
+        Assert.Equal(2, exception.LineNumber);
+        Assert.IsType<ArgumentException>(
+            exception.InnerException);
+    
+    }
+    ///
+    /// <summary>
+    /// Ensures that the StreetAddress and City must not be empty or whitespace.
+    /// </summary>
+    [Fact]
+    public void StreetAddressAndCityMustNotBeEmptyOrWhitespace()
+    {
+        using var importer = new PeopleImporter(CreateReader(
+            $"{Header}{Environment.NewLine}" +
+            "1,Ada,Lovelace,ada@example.com, , ,WA,99001"));
+
+        var exception = Assert.Throws<InvalidPersonRecordException>(
+            () => importer.Import(ImportMode.FailFast));
+
+        Assert.Equal(2, exception.LineNumber);
+        Assert.IsType<ArgumentException>(
+            exception.InnerException);
+    
+    }
+    /// <summary>
+    /// Ensures that the ValidationDelegate returning null is treated as a valid record.
+    /// </summary>
+    [Fact]
+    public void ValidationDelegateReturningNullIsValid()
+    {
+        using var importer = new PeopleImporter(CreateReader(
+            $"{Header}{Environment.NewLine}" +
+            "1,Ada,Lovelace,ada@example.com,123 Main St,Anytown,WA,99001"));
+
+        var people = importer.Import(
+        ImportMode.FailFast,
+        validationDelegate: _ => null);
+
+        Assert.Single(people);  
+    }
+    /// <summary>
+    /// Ensures that the ValidationDelegate returning an empty string is treated as an invalid record
+    /// </summary>
+    [Fact]
+    public void ValidationDelegateReturningEmptyStringIsInvalid()
+    {
+        using var importer = new PeopleImporter(CreateReader(
+            $"{Header}{Environment.NewLine}" +
+            "1,Ada,Lovelace,ada@example.com,123 Main St,Anytown,WA,99001"));
+
+        var exception = Assert.Throws<InvalidPersonRecordException>(
+            () => importer.Import(
+                ImportMode.FailFast,
+                validationDelegate: _ => string.Empty));
+
+        Assert.IsType<InvalidOperationException>(
+            exception.InnerException);
+    }
 }
