@@ -46,7 +46,7 @@ public static class Csv
 
                 row.Add(field.ToString());
                 field.Clear();
-                if (row.Any(value => value.Length > 0))
+                if (row.Count > 1 || row.Any(value => value.Length > 0))
                 {
                     rows.Add(row.ToArray());
                 }
@@ -72,6 +72,7 @@ public static class Csv
         return rows;
     }
 
+
     /// <summary>Escapes a CSV field when it contains a comma, quote, or line break.</summary>
     /// <param name="value">The field value to escape.</param>
     /// <returns>The CSV-escaped field.</returns>
@@ -85,17 +86,20 @@ public static class Csv
         return '"' + value.Replace("\"", "\"\"", StringComparison.Ordinal) + '"';
     }
 
+
     /// <summary>Formats and escapes a CSV header row.</summary>
     /// <param name="header">The header fields.</param>
     /// <returns>The formatted CSV header.</returns>
     public static string FormatHeader(string[] header) =>
         string.Join(',', header.Select(Escape));
 
+
     /// <summary>Formats and escapes a CSV data row.</summary>
     /// <param name="values">The row fields.</param>
     /// <returns>The formatted CSV row.</returns>
     public static string FormatRow(string[] values) =>
         string.Join(',', values.Select(Escape));
+
 
     /// <summary>Determines whether a person has a name, valid email address, and five-digit ZIP code.</summary>
     /// <param name="person">The person to validate.</param>
@@ -119,6 +123,7 @@ public static class Csv
                person.ZipCode.Trim().Length == 5 &&
                person.ZipCode.Trim().All(char.IsAsciiDigit);
     }
+
 
     /// <summary>Gets the first validation failure for a person.</summary>
     /// <param name="person">The person to validate.</param>
@@ -150,6 +155,7 @@ public static class Csv
 
         return "Invalid person";
     }
+
 
     /// <summary>Determines whether a city and uppercase two-letter state form a valid location.</summary>
     /// <param name="city">The city name.</param>

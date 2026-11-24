@@ -4,8 +4,17 @@ using Assignment.Interfaces;
 
 namespace Assignment.Tests;
 
+
+/// <summary>
+/// This class handles the People Enrichment Service testing 
+/// </summary>
 public sealed class PeopleEnrichmentServiceTests
 {
+
+    /// <summary>
+    ///  Success status only writes fully enriched records fully checked by the function
+    /// </summary>
+    /// <returns></returns>
     [Fact]
     public async Task SuccessWritesOnlyValidFullyEnrichedPeople()
     {
@@ -44,6 +53,13 @@ public sealed class PeopleEnrichmentServiceTests
         }
     }
 
+
+    /// <summary>
+    ///  Exception timeout or invalid record download function. This is pretty self-explainatory
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="TaskCanceledException"></exception>
+    /// <exception cref="HttpRequestException"></exception>
     [Fact]
     public async Task PeopleDownloadRetriesInvalidTimeoutAndExceptionModes()
     {
@@ -89,6 +105,13 @@ public sealed class PeopleEnrichmentServiceTests
         }
     }
 
+
+    /// <summary>
+    /// If something fails retry and rm the bad result. 
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="HttpRequestException"></exception>
+    /// <exception cref="TaskCanceledException"></exception>
     [Fact]
     public async Task LocationLookupRetriesEveryFailureAndRemovesBadResult()
     {
@@ -134,6 +157,11 @@ public sealed class PeopleEnrichmentServiceTests
         }
     }
 
+
+    /// <summary>
+    /// If the list is exhausted throw and leave no output 
+    /// </summary>
+    /// <returns></returns>
     [Fact]
     public async Task ExhaustedPeopleRetriesThrowAndLeaveNoOutput()
     {
@@ -148,19 +176,51 @@ public sealed class PeopleEnrichmentServiceTests
         Assert.Empty(Directory.GetFiles(Path.GetDirectoryName(path)!, "*.tmp"));
     }
 
+
+    /// <summary>
+    /// Cancellation cmd stops lookup and waits for sys handler to finish current working task
+    /// </summary>
+    /// <returns></returns>
     [Fact]
-    public async Task CancellationStopsPeopleDownloadAndIsHonored()
+    public async Task CancellationStopsActiveLocationLookupAndWaitsForHandlerToFinish()
     {
-        using var handler = new DelegateHandler(_ => Response("bad"));
+        var lookupStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var handlerFinished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var handler = new DelegateHandler(async (request, cancellationToken) =>
+        {
+            if (request.RequestUri!.AbsolutePath == "/people/test")
+            {
+                return Response("FirstName,LastName,EmailAddress,ZipCode\nAda,Lovelace,ada@example.com,99201");
+            }
+
+            lookupStarted.TrySetResult();
+            try
+            {
+                await Task.Delay(Timeout.Infinite, cancellationToken);
+                return Response("\"Spokane\",\"WA\"");
+            }
+            finally
+            {
+                handlerFinished.TrySetResult();
+            }
+        });
         using var client = new HttpClient(handler) { BaseAddress = new Uri("http://example.test/") };
         using var service = CreateService(client);
         using var cancellation = new CancellationTokenSource();
+        var run = service.RunAsync("test", TemporaryPath(), cancellation.Token);
+
+        await lookupStarted.Task;
         cancellation.Cancel();
 
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(
-            () => service.RunAsync("test", TemporaryPath(), cancellation.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => run);
+        await handlerFinished.Task;
     }
 
+
+    /// <summary>
+    /// Limit the num of locations a person record is in
+    /// </summary>
+    /// <returns></returns>
     [Fact]
     public async Task LocationConcurrencyIsLimited()
     {
@@ -204,6 +264,11 @@ public sealed class PeopleEnrichmentServiceTests
         }
     }
 
+
+    /// <summary>
+    /// Invalid / Malformed location removes a person record due to failing structure expectation
+    /// </summary>
+    /// <returns></returns>
     [Fact]
     public async Task InvalidLocationDataRemovesPerson()
     {
@@ -228,6 +293,11 @@ public sealed class PeopleEnrichmentServiceTests
         }
     }
 
+
+    /// <summary>
+    /// Exception props without wrapping to save time. This test ensures that it functions correctly 
+    /// </summary>
+    /// <returns></returns>
     [Fact]
     public async Task UnexpectedExceptionPropagatesWithoutWrapping()
     {
@@ -241,35 +311,68 @@ public sealed class PeopleEnrichmentServiceTests
         Assert.Same(unexpected, thrown);
     }
 
+
+    /// <summary>
+    /// Failed publication gets purged from temp file and preserves output test
+    /// </summary>
+    /// <returns></returns>
     [Fact]
-    public async Task FailedLocationRunDoesNotLeaveTemporaryFiles()
+    public async Task FailedPublicationRemovesTemporaryFileAndPreservesExistingOutput()
     {
         using var handler = new DelegateHandler(request =>
             request.RequestUri!.AbsolutePath == "/people/test"
                 ? Response("FirstName,LastName,EmailAddress,ZipCode\nAda,Lovelace,ada@example.com,99201")
-                : throw new HttpRequestException("failure"));
+                : Response("\"Spokane\",\"WA\""));
         using var client = new HttpClient(handler) { BaseAddress = new Uri("http://example.test/") };
         using var service = CreateService(client, retryCount: 2);
         var path = TemporaryPath();
+        Directory.CreateDirectory(path);
+        var existingOutput = Path.Combine(path, "preserve.txt");
+        await File.WriteAllTextAsync(existingOutput, "keep this output");
 
-        var result = await service.RunAsync("test", path);
-        Assert.Equal(0, result.EnrichedPeople);
-        Assert.True(File.Exists(path));
-        Assert.Empty(Directory.GetFiles(Path.GetDirectoryName(path)!, "*.tmp"));
+        try
+        {
+            await Assert.ThrowsAnyAsync<IOException>(() => service.RunAsync("test", path));
+            Assert.Equal("keep this output", await File.ReadAllTextAsync(existingOutput));
+            Assert.Empty(Directory.GetFiles(Path.GetDirectoryName(path)!, "*.tmp"));
+        }
+        finally
+        {
+            Delete(path);
+        }
     }
 
+
+    /// <summary>
+    /// Instantiate the service and test the case 
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="maxConcurrency"></param>
+    /// <param name="retryCount"></param>
+    /// <returns></returns>
     private static PeopleEnrichmentService CreateService(
         HttpClient client,
         int maxConcurrency = 10,
         int retryCount = 5) =>
         new(client, maxConcurrency, retryCount, TimeSpan.Zero);
 
+
+    /// <summary>
+    /// Structure https response to indicate what is happening when pgrm queries
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
     private static HttpResponseMessage Response(string content) =>
         new(HttpStatusCode.OK)
         {
             Content = new StringContent(content)
         };
 
+
+    /// <summary>
+    /// Temp path is structured and tested
+    /// </summary>
+    /// <returns></returns>
     private static string TemporaryPath()
     {
         var directory = Path.Combine(Path.GetTempPath(), "assignment9-" + Guid.NewGuid().ToString("N"));
@@ -277,6 +380,11 @@ public sealed class PeopleEnrichmentServiceTests
         return Path.Combine(directory, "output.csv");
     }
 
+
+    /// <summary>
+    /// Pretty self explainatory 
+    /// </summary>
+    /// <param name="path"></param>
     private static void Delete(string path)
     {
         var directory = Path.GetDirectoryName(path);
@@ -286,6 +394,12 @@ public sealed class PeopleEnrichmentServiceTests
         }
     }
 
+
+    /// <summary>
+    /// This one is also pretty self explainatory 
+    /// </summary>
+    /// <param name="maximum"></param>
+    /// <param name="candidate"></param>
     private static void UpdateMaximum(ref int maximum, int candidate)
     {
         var observed = Volatile.Read(ref maximum);
@@ -300,6 +414,10 @@ public sealed class PeopleEnrichmentServiceTests
         }
     }
 
+
+    /// <summary>
+    /// Delagate handling tests to ensure this works
+    /// </summary>
     private sealed class DelegateHandler : HttpMessageHandler
     {
         private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> _handler;

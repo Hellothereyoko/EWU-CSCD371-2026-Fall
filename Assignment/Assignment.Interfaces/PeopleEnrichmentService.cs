@@ -91,6 +91,15 @@ public sealed class PeopleEnrichmentService : IDisposable
             rejections);
     }
 
+
+    /// <summary>
+    /// Downloads people from CSV as an async task 
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidDataException"></exception>
+    /// <exception cref="PeopleDownloadException"></exception>
     private async Task<string> DownloadPeopleAsync(string user, CancellationToken cancellationToken)
     {
         Exception? lastException = null;
@@ -136,6 +145,12 @@ public sealed class PeopleEnrichmentService : IDisposable
             lastException);
     }
 
+
+    /// <summary>
+    /// Header for ensuring a valid person target is selected
+    /// </summary>
+    /// <param name="csv"></param>
+    /// <returns></returns>
     private static bool IsValidPeopleHeader(string csv)
     {
         var rows = Csv.Parse(csv);
@@ -152,6 +167,13 @@ public sealed class PeopleEnrichmentService : IDisposable
                header[3].Equals("ZipCode", StringComparison.OrdinalIgnoreCase);
     }
 
+
+    /// <summary>
+    /// This parses the CSV of people
+    /// </summary>
+    /// <param name="csv"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidDataException"></exception>
     private static (Person Person, string RowDescription)[] ParsePeopleCsv(string csv)
     {
         var rows = Csv.Parse(csv);
@@ -161,19 +183,25 @@ public sealed class PeopleEnrichmentService : IDisposable
         }
 
         return rows.Skip(1)
-            .Select(row => row.Length >= 4
+            .Select(row => row.Length == 4
                 ? new Person(row[0].Trim(), row[1].Trim(), row[2].Trim(), row[3].Trim())
                 : new Person(
                     row.ElementAtOrDefault(0)?.Trim() ?? string.Empty,
                     row.ElementAtOrDefault(1)?.Trim() ?? string.Empty,
-                    row.ElementAtOrDefault(2)?.Trim() ?? string.Empty,
-                    row.ElementAtOrDefault(3)?.Trim() ?? string.Empty))
+                    string.Empty,
+                    string.Empty))
             .Select((person, index) => (
                 person,
                 RowDescription: $"row {index + 2}: {person.FirstName} {person.LastName}".Trim()))
             .ToArray();
     }
 
+    /// <summary>
+    /// Location lookup of a person in a CSV as an async task 
+    /// </summary>
+    /// <param name="person"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     private async Task<LocationLookup> LookupLocationAsync(Person person, CancellationToken cancellationToken)
     {
         await _requestLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -246,6 +274,11 @@ public sealed class PeopleEnrichmentService : IDisposable
         }
     }
 
+    /// <summary>
+    /// Delay Async task function to ensure memory doesnt hang
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     private async Task DelayAsync(CancellationToken cancellationToken)
     {
         if (_retryDelay > TimeSpan.Zero)
@@ -254,6 +287,13 @@ public sealed class PeopleEnrichmentService : IDisposable
         }
     }
 
+    /// <summary>
+    /// Write structured output as an async task 
+    /// </summary>
+    /// <param name="outputPath"></param>
+    /// <param name="people"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     private static async Task WriteOutputAtomicallyAsync(
         string outputPath,
         IReadOnlyCollection<EnrichedPerson> people,
@@ -323,6 +363,12 @@ public sealed class PeopleEnrichmentService : IDisposable
         _disposed = true;
     }
 
+    /// <summary>
+    /// This record is in regards to the location lookup function. Look there for additional guidance 
+    /// </summary>
+    /// <param name="Person"></param>
+    /// <param name="RejectionPerson"></param>
+    /// <param name="RejectionReason"></param>
     private sealed record LocationLookup(
         EnrichedPerson? Person,
         Person? RejectionPerson,
