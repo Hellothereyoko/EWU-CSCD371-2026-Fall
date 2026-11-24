@@ -2,6 +2,7 @@ using System.Net;
 
 namespace Assignment.Interfaces;
 
+/// <summary>Downloads people data, enriches locations, and writes the results to a CSV file.</summary>
 public sealed class PeopleEnrichmentService : IDisposable
 {
     private readonly HttpClient _httpClient;
@@ -12,6 +13,11 @@ public sealed class PeopleEnrichmentService : IDisposable
     private bool _disposed;
 
     /// <summary>Creates a resilient people downloader and location enricher.</summary>
+    /// <param name="httpClient">The HTTP client used to call the people API.</param>
+    /// <param name="maxConcurrentRequests">The maximum number of concurrent requests.</param>
+    /// <param name="retryCount">The maximum number of attempts for each request.</param>
+    /// <param name="retryDelay">The delay between failed attempts.</param>
+    /// <param name="disposeHttpClient">Whether disposing this service also disposes the HTTP client.</param>
     public PeopleEnrichmentService(
         HttpClient httpClient,
         int maxConcurrentRequests = 10,
@@ -33,6 +39,11 @@ public sealed class PeopleEnrichmentService : IDisposable
     /// <summary>
     /// Downloads, validates, concurrently enriches, and atomically writes the final CSV.
     /// </summary>
+    /// <param name="user">The user whose people data should be downloaded.</param>
+    /// <param name="outputPath">The path where the enriched CSV should be written.</param>
+    /// <param name="cancellationToken">A token that can cancel the operation.</param>
+    /// <returns>Counts and rejection details for the completed run.</returns>
+    /// <exception cref="PeopleDownloadException">The people data could not be downloaded after retrying.</exception>
     public async Task<RunResult> RunAsync(string user, string outputPath, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(user);
@@ -296,6 +307,7 @@ public sealed class PeopleEnrichmentService : IDisposable
         }
     }
 
+    /// <summary>Releases the request limiter and, when configured, the HTTP client.</summary>
     public void Dispose()
     {
         if (_disposed)
