@@ -20,14 +20,8 @@ public sealed class PeopleEnrichmentService : IDisposable
         bool disposeHttpClient = false)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
-        if (maxConcurrentRequests < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxConcurrentRequests));
-        }
-        if (retryCount < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(retryCount));
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxConcurrentRequests, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(retryCount, 1);
 
         _httpClient = httpClient;
         _requestLimiter = new SemaphoreSlim(maxConcurrentRequests, maxConcurrentRequests);
@@ -47,7 +41,7 @@ public sealed class PeopleEnrichmentService : IDisposable
 
         var peopleCsv = await DownloadPeopleAsync(user, cancellationToken).ConfigureAwait(false);
         var parsedRows = ParsePeopleCsv(peopleCsv);
-        var totalRows = parsedRows.Count;
+        var totalRows = parsedRows.Length;
 
         var rejections = parsedRows
             .Where(personAndRow => !Csv.IsValidPerson(personAndRow.Person))
@@ -147,7 +141,7 @@ public sealed class PeopleEnrichmentService : IDisposable
                header[3].Equals("ZipCode", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static IReadOnlyList<(Person Person, string RowDescription)> ParsePeopleCsv(string csv)
+    private static (Person Person, string RowDescription)[] ParsePeopleCsv(string csv)
     {
         var rows = Csv.Parse(csv);
         if (rows.Count < 1)
